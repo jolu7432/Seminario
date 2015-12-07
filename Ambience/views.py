@@ -1,3 +1,4 @@
+from datetime import timedelta
 from django.contrib.auth import authenticate, logout, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -200,9 +201,12 @@ def graficarDash(request):
     fechaH = request.POST['fechaHasta']
     queryset = []
     if request.POST['consulta'] == "alerta":
-        queryset = list(Alerta.objects.filter(es_alerta=True, sensor__silo=sil, tiempo__range=[fechaD, fechaH]).order_by('-tiempo'))
+        queryset = list(
+            Alerta.objects.filter(es_alerta=True, sensor__silo=sil, tiempo__range=[fechaD, fechaH]).order_by('-tiempo'))
     else:
-        queryset = list(Alerta.objects.filter(es_alerta=False, sensor__silo=sil, tiempo__range=[fechaD, fechaH]).order_by('-tiempo'))
+        queryset = list(
+            Alerta.objects.filter(es_alerta=False, sensor__silo=sil, tiempo__range=[fechaD, fechaH]).order_by(
+                '-tiempo'))
     respuesta = []
     for item in queryset:
         obj = Alerta()
@@ -211,7 +215,8 @@ def graficarDash(request):
         obj.temperatura = item.temperatura
         item.sensor.id = item.sensor.identificador
         obj.sensor = item.sensor
-        obj.tiempo = item.tiempo
+        t = item.tiempo - timedelta(hours=3)
+        obj.tiempo = t.replace(t.year, t.month, t.day, t.hour, t.minute, 0, 0, None)
         respuesta.append(obj)
     data = []
     data = serializers.serialize('json', respuesta)

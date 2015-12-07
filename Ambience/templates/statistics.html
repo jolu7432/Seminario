@@ -8,52 +8,24 @@
         var obj2 = new Object();
         var obj3 = new Object();
         var obj4 = new Object();
+        var f = false;
         $(document).ready(function () {
             //script for menu
             $('#statistics').attr('class', 'active');
             //script for menu
+            $('#prueba').click(function () {
+                if (f) {
+                    $('#col').addClass('col-md-6');
+                    f = false;
+                } else {
+                    $('#col').removeClass('col-md-6');
+                    f = true;
+                }
+                graficar();
+            });
 
             $('#btnRenderReporte').click(function () {
-                var obj = getFiltrosControl();
-                var DOMGraf = "";
-                var fechaCorrecta = validar_fechaDesdeMenorHasta(obj.fechaDesde, obj.fechaHasta);
-                if (fechaCorrecta == 0) {
-                    if (obj.silo != "") {
-                        if (obj.consulta != "") {
-                            if (obj.grafico == "1") {
-                                DOMGraf = "#grafico1";
-                                $('#PanelGrafico1').css('display', 'inline');
-                                $('#opciones1').css('display', 'inline');
-                                $('#dropTiposGraficos1').val('columna');
-
-                            }
-                            if (obj.grafico == "2") {
-                                DOMGraf = "#grafico2";
-                                $('#PanelGrafico2').css('display', 'inline');
-                                $('#opciones2').css('display', 'inline');
-                                $('#dropTiposGraficos2').val('columna');
-                            }
-                            if (obj.grafico == "3") {
-                                DOMGraf = "#grafico3";
-                                $('#PanelGrafico3').css('display', 'inline');
-                                $('#opciones3').css('display', 'inline');
-                                $('#dropTiposGraficos3').val('columna');
-                            }
-                            if (obj.grafico == "4") {
-                                DOMGraf = "#grafico4";
-                                $('#PanelGrafico4').css('display', 'inline');
-                                $('#opciones4').css('display', 'inline');
-                                $('#dropTiposGraficos4').val('columna');
-                            }
-                            guardarFiltro(obj);
-                            setGraficoTabla(obj, DOMGraf, 'columna');
-                        } else {
-                            alert('Debe seleccionar una Consulta');
-                        }
-                    } else {
-                        alert('Debe seleccionar un Silo Primero');
-                    }
-                }
+                graficar();
             });
 
             $('#linkCerrar1').click(function () {
@@ -132,7 +104,8 @@
             });
 
 
-        });
+        })
+        ;
 
         function getFiltro(o) {
             $('#dropSilos').val(o.silo);
@@ -173,6 +146,7 @@
             if (numeroFiltro == "4")
                 setFiltro(objIni, obj4);
         }
+
         function guardarFiltro(tObj) {
             if (tObj.grafico == 1)
                 setFiltro(tObj, obj1);
@@ -183,6 +157,7 @@
             if (tObj.grafico == 4)
                 setFiltro(tObj, obj4);
         }
+
         function setGraficoTabla(dataFiltro, DOMGraf, TipoGrafico) {
             $.post('graficarDash', {
                 grafico: dataFiltro.grafico,
@@ -214,7 +189,7 @@
                 var flag = true; // para no poner categorias repetidas debido a tener tem y hum para un mismo sensor.
                 $.each(alertas, function (index, item) {
                     if (flag) {
-                        highcharts.categories.push(item.tiempo);
+                        highcharts.categories.push(item.tiempo.substring(0, item.tiempo.length - 3));
                         flag = false;
                     } else {
                         flag = true;
@@ -355,6 +330,7 @@
             obj.consulta = $('#dropConsultas').val();
             return obj;
         }
+
         function zoomIn() {
             $('#popup').fadeIn('slow');
             $('.popup-overlay').fadeIn('slow');
@@ -367,6 +343,7 @@
             $('.popup-overlay').fadeOut('slow');
             return false;
         }
+
         function validar_fechaDesdeMenorHasta(inicio, final) {
             var d = new Date();
             var hoy = ("0" + d.getDate()).slice(-2) + '/' + ("0" + (d.getMonth() + 1)).slice(-2) + '/' + d.getFullYear();
@@ -395,8 +372,55 @@
             return 0;
         }
 
+        function graficar() {
+            var obj = getFiltrosControl();
+            var DOMGraf = "";
+            var fechaCorrecta = validar_fechaDesdeMenorHasta(obj.fechaDesde, obj.fechaHasta);
+            if (fechaCorrecta == 0) {
+                if (obj.silo != "") {
+                    if (obj.consulta != "") {
+                        if (obj.grafico == "1") {
+                            DOMGraf = "#grafico1";
+                            $('#PanelGrafico1').css('display', 'inline');
+                            $('#opciones1').css('display', 'inline');
+                            $('#dropTiposGraficos1').val('columna');
+
+                        }
+                        if (obj.grafico == "2") {
+                            DOMGraf = "#grafico2";
+                            $('#PanelGrafico2').css('display', 'inline');
+                            $('#opciones2').css('display', 'inline');
+                            $('#dropTiposGraficos2').val('columna');
+                        }
+                        if (obj.grafico == "3") {
+                            DOMGraf = "#grafico3";
+                            $('#PanelGrafico3').css('display', 'inline');
+                            $('#opciones3').css('display', 'inline');
+                            $('#dropTiposGraficos3').val('columna');
+                        }
+                        if (obj.grafico == "4") {
+                            DOMGraf = "#grafico4";
+                            $('#PanelGrafico4').css('display', 'inline');
+                            $('#opciones4').css('display', 'inline');
+                            $('#dropTiposGraficos4').val('columna');
+                        }
+                        guardarFiltro(obj);
+                        setGraficoTabla(obj, DOMGraf, 'columna');
+                    } else {
+                        alert('Debe seleccionar una Consulta');
+                    }
+                } else {
+                    alert('Debe seleccionar un Silo Primero');
+                }
+            }
+        }
+
     </script>
     <style>
+        .p {
+            display: none
+        }
+
         .content-popup {
             margin: 0px auto;
             position: relative;
@@ -485,6 +509,7 @@
     <div id="principal" class="service-section">
         <div class="container">
             <h3>Estadisticas</h3>
+            <input id="prueba" type="button" value="cambiar">
 
             <div id="divIndicadorYFiltros" class="cont">
                 <div id="divFiltros" class="container-fluid">
@@ -542,7 +567,7 @@
 
     <div class="service-grids ">
         <div class="service-grid1">
-            <div class="col-md-6 service-grid">
+            <div id="col" class="col-md-6 service-grid">
                 {#                       primer grafico#}
                 <div id="Marco1" class="marco">
                     <div id="PanelGrafico1"
@@ -629,93 +654,95 @@
             </div>
         </div>
         <div class="clearfix"></div>
-    </div>
-    <div class="service-grid2 opacDiv">
-        <div class="col-md-6 service-grid ">
-            {#                   tercer grafico#}
-            <div id="Marco3" class="marco">
-                <div id="PanelGrafico3"
-                     style="height: 400px; overflow: hidden; display: none;">
-                    <div id="tabGraf3" style="height: 100%; width: 100%;">
-                        <div id="grafico3" style="height: 100%; width: 100%;"
-                             align="center">
-                        </div>
-                        <div id="tipoGrafico3" align="center">
-                            <select id="dropTiposGraficos3">
-                                <option value="columna">Columna</option>
-                                <option value="barra">Barra</option>
-                                {#                                <option value="torta">Circular</option>#}
-                                <option value="linea">Linea</option>
-                            </select>
-                        </div>
-                    </div>
 
-                </div>
-                <div id="opciones3" class="opciones">
-                    <div>
-                        <a href="#" id="openZoom3">
-                            <img src="static/images/icon_ampliar.png" border="0"
-                                 alt="Ampliar"
-                                 title="Ampliar"
-                                 width="25"
-                                 height="25"/></a>
+        <div class="service-grid2 opacDiv">
+            <div class="col-md-6 service-grid ">
+                {#                   tercer grafico#}
+                <div id="Marco3" class="marco">
+                    <div id="PanelGrafico3"
+                         style="height: 400px; overflow: hidden; display: none;">
+                        <div id="tabGraf3" style="height: 100%; width: 100%;">
+                            <div id="grafico3" style="height: 100%; width: 100%;"
+                                 align="center">
+                            </div>
+                            <div id="tipoGrafico3" align="center">
+                                <select id="dropTiposGraficos3">
+                                    <option value="columna">Columna</option>
+                                    <option value="barra">Barra</option>
+                                    {#                                <option value="torta">Circular</option>#}
+                                    <option value="linea">Linea</option>
+                                </select>
+                            </div>
+                        </div>
+
                     </div>
-                    <div>
-                        <a id="linkCerrar3" onclick="linkCerrar3_Click">
-                            <img src="static/images/icon_cerrar.png" border="0"
-                                 alt="Cerrar"
-                                 title="Cerrar" width="25" height="25"/></a>
+                    <div id="opciones3" class="opciones">
+                        <div>
+                            <a href="#" id="openZoom3">
+                                <img src="static/images/icon_ampliar.png" border="0"
+                                     alt="Ampliar"
+                                     title="Ampliar"
+                                     width="25"
+                                     height="25"/></a>
+                        </div>
+                        <div>
+                            <a id="linkCerrar3" onclick="linkCerrar3_Click">
+                                <img src="static/images/icon_cerrar.png" border="0"
+                                     alt="Cerrar"
+                                     title="Cerrar" width="25" height="25"/></a>
+                        </div>
                     </div>
-                </div>
-                <div class="indicador">
-                    <img src="static/images/icon_panel3.png" border="0" alt="Panel"
-                         title="Panel"
-                         width="25"
-                         height="25"/>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-6 service-grid">
-        {#                cuarto grafico#}
-        <div id="Marco4" class="marco">
-            <div id="PanelGrafico4"
-                 style="height: 400px; overflow: hidden; display: none;">
-                <div id="tabGraf4" style="height: 100%; width: 100%;">
-                    <div id="grafico4" style="height: 100%; width: 100%;"
-                         align="center">
-                    </div>
-                    <div id="tipoGrafico4" align="center">
-                        <select id="dropTiposGraficos4">
-                            <option value="columna">Columna</option>
-                            <option value="barra">Barra</option>
-                            {#                            <option value="torta">Circular</option>#}
-                            <option value="linea">Linea</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-            <div id="opciones4" class="opciones">
-                <div>
-                    <a href="#" id="openZoom4">
-                        <img src="static/images/icon_ampliar.png" border="0"
-                             alt="Ampliar"
-                             title="Ampliar"
+                    <div class="indicador">
+                        <img src="static/images/icon_panel3.png" border="0" alt="Panel"
+                             title="Panel"
                              width="25"
-                             height="25"/></a>
-                </div>
-                <div>
-                    <a id="linkCerrar4" onclick="linkCerrar4_Click">
-                        <img src="static/images/icon_cerrar.png" border="0"
-                             alt="Cerrar"
-                             title="Cerrar" width="25" height="25"/></a>
+                             height="25"/>
+                    </div>
                 </div>
             </div>
-            <div class="indicador">
-                <img src="static/images/icon_panel4.png" border="0" alt="Panel"
-                     title="Panel"
-                     width="25"
-                     height="25"/>
+
+            <div class="col-md-6 service-grid">
+                {#                cuarto grafico#}
+                <div id="Marco4" class="marco">
+                    <div id="PanelGrafico4"
+                         style="height: 400px; overflow: hidden; display: none;">
+                        <div id="tabGraf4" style="height: 100%; width: 100%;">
+                            <div id="grafico4" style="height: 100%; width: 100%;"
+                                 align="center">
+                            </div>
+                            <div id="tipoGrafico4" align="center">
+                                <select id="dropTiposGraficos4">
+                                    <option value="columna">Columna</option>
+                                    <option value="barra">Barra</option>
+                                    {#                            <option value="torta">Circular</option>#}
+                                    <option value="linea">Linea</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="opciones4" class="opciones">
+                        <div>
+                            <a href="#" id="openZoom4">
+                                <img src="static/images/icon_ampliar.png" border="0"
+                                     alt="Ampliar"
+                                     title="Ampliar"
+                                     width="25"
+                                     height="25"/></a>
+                        </div>
+                        <div>
+                            <a id="linkCerrar4" onclick="linkCerrar4_Click">
+                                <img src="static/images/icon_cerrar.png" border="0"
+                                     alt="Cerrar"
+                                     title="Cerrar" width="25" height="25"/></a>
+                        </div>
+                    </div>
+                    <div class="indicador">
+                        <img src="static/images/icon_panel4.png" border="0" alt="Panel"
+                             title="Panel"
+                             width="25"
+                             height="25"/>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
