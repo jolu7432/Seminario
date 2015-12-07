@@ -31,24 +31,28 @@
             $('#linkCerrar1').click(function () {
                 $('#PanelGrafico1').css('display', 'none');
                 $('#opciones1').css('display', 'none');
+                $('#ind1').css('display', 'none');
                 inicializaFiltro('1');
             });
 
             $('#linkCerrar2').click(function () {
                 $('#PanelGrafico2').css('display', 'none');
                 $('#opciones2').css('display', 'none');
+                $('#ind2').css('display', 'none');
                 inicializaFiltro('2');
             });
 
             $('#linkCerrar3').click(function () {
                 $('#PanelGrafico3').css('display', 'none');
                 $('#opciones3').css('display', 'none');
+                $('#ind3').css('display', 'none');
                 inicializaFiltro('3');
             });
 
             $('#linkCerrar4').click(function () {
                 $('#PanelGrafico4').css('display', 'none');
                 $('#opciones4').css('display', 'none');
+                $('#ind4').css('display', 'none');
                 inicializaFiltro('4');
             });
 
@@ -383,29 +387,48 @@
                             DOMGraf = "#grafico1";
                             $('#PanelGrafico1').css('display', 'inline');
                             $('#opciones1').css('display', 'inline');
+                            $('#ind1').css('display', 'inline');
                             $('#dropTiposGraficos1').val('columna');
-
+                            guardarFiltro(obj);
+                            setGraficoTabla(obj, DOMGraf, 'columna');
                         }
                         if (obj.grafico == "2") {
                             DOMGraf = "#grafico2";
                             $('#PanelGrafico2').css('display', 'inline');
                             $('#opciones2').css('display', 'inline');
+                            $('#ind2').css('display', 'inline');
                             $('#dropTiposGraficos2').val('columna');
+                            $('#Marco1').addClass('col-md-6');
+                            $('#Marco2').addClass('col-md-6');
+                            guardarFiltro(obj);
+                            if(obj1 != null){
+                                setGraficoTabla(obj1, "#grafico1", 'columna');
+                            }
+                            setGraficoTabla(obj, DOMGraf, 'columna');
                         }
                         if (obj.grafico == "3") {
                             DOMGraf = "#grafico3";
                             $('#PanelGrafico3').css('display', 'inline');
                             $('#opciones3').css('display', 'inline');
+                            $('#ind3').css('display', 'inline');
                             $('#dropTiposGraficos3').val('columna');
+                            guardarFiltro(obj);
+                            setGraficoTabla(obj, DOMGraf, 'columna');
                         }
                         if (obj.grafico == "4") {
                             DOMGraf = "#grafico4";
                             $('#PanelGrafico4').css('display', 'inline');
                             $('#opciones4').css('display', 'inline');
+                            $('#ind4').css('display', 'inline');
                             $('#dropTiposGraficos4').val('columna');
+                            $('#Marco3').addClass('col-md-6');
+                            $('#Marco4').addClass('col-md-6');
+                            guardarFiltro(obj);
+                            if(obj3 != null){
+                                setGraficoTabla(obj3,  "#grafico3", 'columna');
+                            }
+                            setGraficoTabla(obj, DOMGraf, 'columna');
                         }
-                        guardarFiltro(obj);
-                        setGraficoTabla(obj, DOMGraf, 'columna');
                     } else {
                         alert('Debe seleccionar una Consulta');
                     }
@@ -473,18 +496,19 @@
             left: 0px;
             top: 0px;
             position: absolute;
+            display: none;
         }
 
         .opciones {
-            float: left;
-            top: 25px;
+{#            float: left;#}
+{#            top: 25px;#}
             display: none;
-            position: absolute;
+{#            position: absolute;#}
         }
 
         .marco {
             height: 400px;
-            border: solid;
+{#            border: solid;#}
             position: relative;
         }
     </style>
@@ -565,184 +589,170 @@
         </div>
     </div>
 
-    <div class="service-grids ">
-        <div class="service-grid1">
-            <div id="col" class="col-md-6 service-grid">
-                {#                       primer grafico#}
-                <div id="Marco1" class="marco">
-                    <div id="PanelGrafico1"
-                         style="height: 100%; overflow: hidden; display: none;">
-                        <div id="tabGraf1" style="height: 100%; width: 100%;">
-                            <div id="grafico1">
-                            </div>
-                            <div id="tipoGrafico1" align="center">
-                                <select id="dropTiposGraficos1">
-                                    <option value="columna">Columna</option>
-                                    <option value="barra">Barra</option>
-                                    {#                                    <option value="torta">Circular</option>#}
-                                    <option value="linea">Linea</option>
-                                </select>
-                            </div>
-                        </div>
+    <div id="contGraf" class="service-grids">
+        {#                       primer grafico#}
+        <div id="Marco1" class="marco">
+            <div id="PanelGrafico1"
+                 style="height: 100%; overflow: hidden; display: none;">
+                <div id="tabGraf1" style="height: 100%; width: 100%;">
+                    <div id="grafico1">
                     </div>
-                    <div id="opciones1" class="opciones">
-                        <div>
-                            <a href="#" id="openZoom1">
-                                <img src="static/images/icon_ampliar.png" border="0"
-                                     alt="Ampliar"
-                                     title="Ampliar"
-                                     width="25"
-                                     height="25"/></a>
-                        </div>
-                        <div>
-                            <a id="linkCerrar1" onclick="linkCerrar1_Click">
-                                <img src="static/images/icon_cerrar.png" border="0"
-                                     alt="Cerrar"
-                                     title="Cerrar" width="25" height="25"/></a>
-                        </div>
-                    </div>
-                    <div class="indicador">
-                        <img src="static/images/icon_panel1.png" border="0" alt="Panel"
-                             title="Panel" width="25"
-                             height="25"/>
+                    <div id="tipoGrafico1" align="center">
+                        <select id="dropTiposGraficos1">
+                            <option value="columna">Columna</option>
+                            <option value="barra">Barra</option>
+                            {#                                    <option value="torta">Circular</option>#}
+                            <option value="linea">Linea</option>
+                        </select>
                     </div>
                 </div>
             </div>
-            <div class="col-md-6 service-grid">
-                {#                        segundo grafico#}
-                <div id="Marco2" class="marco">
-                    <div id="PanelGrafico2"
-                         style="height: 400px; overflow: hidden; display: none;">
-                        <div id="tabGraf2" style="height: 100%; width: 100%;">
-                            <div id="grafico2" style="height: 100%; width: 100%;"
-                                 align="center">
-                            </div>
-                            <div id="tipoGrafico2" align="center">
-                                <select id="dropTiposGraficos2">
-                                    <option value="columna">Columna</option>
-                                    <option value="barra">Barra</option>
-                                    {#                                    <option value="torta">Circular</option>#}
-                                    <option value="linea">Linea</option>
-                                </select>
-                            </div>
-                        </div>
-
-                    </div>
-                    <div id="opciones2" class="opciones">
-                        <div>
-                            <a href="#" id="openZoom2">
-                                <img src="static/images/icon_ampliar.png" border="0"
-                                     alt="Ampliar"
-                                     title="Ampliar"
-                                     width="25"
-                                     height="25"/></a>
-                        </div>
-                        <div>
-                            <a id="linkCerrar2" onclick="linkCerrar2_Click">
-                                <img src="static/images/icon_cerrar.png" border="0"
-                                     alt="Cerrar"
-                                     title="Cerrar" width="25" height="25"/></a>
-                        </div>
-                    </div>
-                    <div class="indicador">
-                        <img src="static/images/icon_panel2.png" border="0" alt="Panel"
-                             title="Panel"
+            <div id="opciones1" class="indicador">
+                <div>
+                    <a href="#" id="openZoom1">
+                        <img src="static/images/icon_ampliar.png" border="0"
+                             alt="Ampliar"
+                             title="Ampliar"
                              width="25"
-                             height="25"/>
-                    </div>
+                             height="25"/></a>
                 </div>
+                <div>
+                    <a id="linkCerrar1" onclick="linkCerrar1_Click">
+                        <img src="static/images/icon_cerrar.png" border="0"
+                             alt="Cerrar"
+                             title="Cerrar" width="25" height="25"/></a>
+                </div>
+                <br><br>
+                <img src="static/images/icon_panel1.png" border="0" alt="Panel"
+                     title="Panel" width="25"
+                     height="25"/>
+                   </div>
+            <div id="ind1" class="indicador">
             </div>
         </div>
-        <div class="clearfix"></div>
-
-        <div class="service-grid2 opacDiv">
-            <div class="col-md-6 service-grid ">
-                {#                   tercer grafico#}
-                <div id="Marco3" class="marco">
-                    <div id="PanelGrafico3"
-                         style="height: 400px; overflow: hidden; display: none;">
-                        <div id="tabGraf3" style="height: 100%; width: 100%;">
-                            <div id="grafico3" style="height: 100%; width: 100%;"
-                                 align="center">
-                            </div>
-                            <div id="tipoGrafico3" align="center">
-                                <select id="dropTiposGraficos3">
-                                    <option value="columna">Columna</option>
-                                    <option value="barra">Barra</option>
-                                    {#                                <option value="torta">Circular</option>#}
-                                    <option value="linea">Linea</option>
-                                </select>
-                            </div>
-                        </div>
-
+        {#                        segundo grafico#}
+        <div id="Marco2" class="marco">
+            <div id="PanelGrafico2"
+                 style="height: 400px; overflow: hidden; display: none;">
+                <div id="tabGraf2" style="height: 100%; width: 100%;">
+                    <div id="grafico2" style="height: 100%; width: 100%;"
+                         align="center">
                     </div>
-                    <div id="opciones3" class="opciones">
-                        <div>
-                            <a href="#" id="openZoom3">
-                                <img src="static/images/icon_ampliar.png" border="0"
-                                     alt="Ampliar"
-                                     title="Ampliar"
-                                     width="25"
-                                     height="25"/></a>
-                        </div>
-                        <div>
-                            <a id="linkCerrar3" onclick="linkCerrar3_Click">
-                                <img src="static/images/icon_cerrar.png" border="0"
-                                     alt="Cerrar"
-                                     title="Cerrar" width="25" height="25"/></a>
-                        </div>
+                    <div id="tipoGrafico2" align="center">
+                        <select id="dropTiposGraficos2">
+                            <option value="columna">Columna</option>
+                            <option value="barra">Barra</option>
+                            {#                                    <option value="torta">Circular</option>#}
+                            <option value="linea">Linea</option>
+                        </select>
                     </div>
-                    <div class="indicador">
-                        <img src="static/images/icon_panel3.png" border="0" alt="Panel"
-                             title="Panel"
+                </div>
+
+            </div>
+            <div id="opciones2" class="opciones">
+                <div>
+                    <a href="#" id="openZoom2">
+                        <img src="static/images/icon_ampliar.png" border="0"
+                             alt="Ampliar"
+                             title="Ampliar"
                              width="25"
-                             height="25"/>
+                             height="25"/></a>
+                </div>
+                <div>
+                    <a id="linkCerrar2" onclick="linkCerrar2_Click">
+                        <img src="static/images/icon_cerrar.png" border="0"
+                             alt="Cerrar"
+                             title="Cerrar" width="25" height="25"/></a>
+                </div>
+            </div>
+            <div id="ind2" class="indicador">
+                <img src="static/images/icon_panel2.png" border="0" alt="Panel"
+                     title="Panel"
+                     width="25"
+                     height="25"/>
+            </div>
+        </div>
+        {#                   tercer grafico#}
+        <div id="Marco3" class="marco">
+            <div id="PanelGrafico3"
+                 style="height: 400px; overflow: hidden; display: none;">
+                <div id="tabGraf3" style="height: 100%; width: 100%;">
+                    <div id="grafico3" style="height: 100%; width: 100%;"
+                         align="center">
+                    </div>
+                    <div id="tipoGrafico3" align="center">
+                        <select id="dropTiposGraficos3">
+                            <option value="columna">Columna</option>
+                            <option value="barra">Barra</option>
+                            {#                                <option value="torta">Circular</option>#}
+                            <option value="linea">Linea</option>
+                        </select>
+                    </div>
+                </div>
+
+            </div>
+            <div id="opciones3" class="opciones">
+                <div>
+                    <a href="#" id="openZoom3">
+                        <img src="static/images/icon_ampliar.png" border="0"
+                             alt="Ampliar"
+                             title="Ampliar"
+                             width="25"
+                             height="25"/></a>
+                </div>
+                <div>
+                    <a id="linkCerrar3" onclick="linkCerrar3_Click">
+                        <img src="static/images/icon_cerrar.png" border="0"
+                             alt="Cerrar"
+                             title="Cerrar" width="25" height="25"/></a>
+                </div>
+            </div>
+            <div id="ind3" class="indicador">
+                <img src="static/images/icon_panel3.png" border="0" alt="Panel"
+                     title="Panel"
+                     width="25"
+                     height="25"/>
+            </div>
+        </div>
+        {#                cuarto grafico#}
+        <div id="Marco4" class="marco">
+            <div id="PanelGrafico4"
+                 style="height: 400px; overflow: hidden; display: none;">
+                <div id="tabGraf4" style="height: 100%; width: 100%;">
+                    <div id="grafico4" style="height: 100%; width: 100%;"
+                         align="center">
+                    </div>
+                    <div id="tipoGrafico4" align="center">
+                        <select id="dropTiposGraficos4">
+                            <option value="columna">Columna</option>
+                            <option value="barra">Barra</option>
+                            {#                            <option value="torta">Circular</option>#}
+                            <option value="linea">Linea</option>
+                        </select>
                     </div>
                 </div>
             </div>
-
-            <div class="col-md-6 service-grid">
-                {#                cuarto grafico#}
-                <div id="Marco4" class="marco">
-                    <div id="PanelGrafico4"
-                         style="height: 400px; overflow: hidden; display: none;">
-                        <div id="tabGraf4" style="height: 100%; width: 100%;">
-                            <div id="grafico4" style="height: 100%; width: 100%;"
-                                 align="center">
-                            </div>
-                            <div id="tipoGrafico4" align="center">
-                                <select id="dropTiposGraficos4">
-                                    <option value="columna">Columna</option>
-                                    <option value="barra">Barra</option>
-                                    {#                            <option value="torta">Circular</option>#}
-                                    <option value="linea">Linea</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div id="opciones4" class="opciones">
-                        <div>
-                            <a href="#" id="openZoom4">
-                                <img src="static/images/icon_ampliar.png" border="0"
-                                     alt="Ampliar"
-                                     title="Ampliar"
-                                     width="25"
-                                     height="25"/></a>
-                        </div>
-                        <div>
-                            <a id="linkCerrar4" onclick="linkCerrar4_Click">
-                                <img src="static/images/icon_cerrar.png" border="0"
-                                     alt="Cerrar"
-                                     title="Cerrar" width="25" height="25"/></a>
-                        </div>
-                    </div>
-                    <div class="indicador">
-                        <img src="static/images/icon_panel4.png" border="0" alt="Panel"
-                             title="Panel"
+            <div id="opciones4" class="opciones">
+                <div>
+                    <a href="#" id="openZoom4">
+                        <img src="static/images/icon_ampliar.png" border="0"
+                             alt="Ampliar"
+                             title="Ampliar"
                              width="25"
-                             height="25"/>
-                    </div>
+                             height="25"/></a>
                 </div>
+                <div>
+                    <a id="linkCerrar4" onclick="linkCerrar4_Click">
+                        <img src="static/images/icon_cerrar.png" border="0"
+                             alt="Cerrar"
+                             title="Cerrar" width="25" height="25"/></a>
+                </div>
+            </div>
+            <div id="ind4" class="indicador">
+                <img src="static/images/icon_panel4.png" border="0" alt="Panel"
+                     title="Panel"
+                     width="25"
+                     height="25"/>
             </div>
         </div>
     </div>

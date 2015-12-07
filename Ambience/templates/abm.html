@@ -27,25 +27,46 @@
                 var combo = $('<select>').appendTo(silos);
                 {% for p in puestos %}
                     {% if p.user == us %}
-                        $('<option value={{ p.silo.ip_asignada }}>').text('{{ p.silo.ip_asignada }}').appendTo(combo);
+                        $('<option name="{{ p.user }}" value={{ p.silo.id }}>').text('{{ p.silo.ip_asignada }}').appendTo(combo);
                     {% endif %}
                 {% endfor %}
                 /* $.post('traerSilo', {idUser: { us.id }}}, function (response) {
-                     responseJson = jQuery.parseJSON(response);
-                     $.each(responseJson, function (index, item) {
-                     $('<option value="' + item.fields.ip_asignada + '">').text(item.fields.ip_asignada).appendTo(combo);
-                     });
+                 responseJson = jQuery.parseJSON(response);
+                 $.each(responseJson, function (index, item) {
+                 $('<option value="' + item.fields.ip_asignada + '">').text(item.fields.ip_asignada).appendTo(combo);
+                 });
                  });*/
                 $('<td>').text('{{us.es_operario}}').appendTo(tr);
                 var accion = $('<td>').appendTo(tr);
-                $('<button id="1" title="Editar" class="editar"><img src="iconos/editar.png" alt="Editar">').appendTo(accion);
-                $('<button id="2" title="Borrar" class="borrar"><img src="iconos/remove.png" alt="Borrar">').appendTo(accion);
+                $('<button id="{{ us.id }}" title="Editar" class="editar"><img src="iconos/editar.png" alt="Editar">').appendTo(accion);
+                $('<button id="{{ us.id }}" title="Borrar" class="borrar"><img src="iconos/remove.png" alt="Borrar">').appendTo(accion);
 
             {% endfor %}
 
             $('#example').dataTable();
             $('#example').on('click', '.editar', function () {
-
+                {% for us in usuarios %}
+                    if ({{ us.id }} == this.id) {
+                    $('#id_usuario').val('{{ us.username }}');
+                    $('#id_password').val();
+                    $('#id_email').val('{{ us.email }}');
+                    $('#id_nombre').val('{{ us.first_name }}');
+                    $('#id_apellido').val('{{ us.last_name }}');
+                    //$('#id_direccion').val();
+                    {% for p in puestos %}
+                        {% if p.user == us %}
+                            $('[name=itemSilo]').each(function (k, y) {
+                                if ('{{ p.silo.ip_asignada}}' == y.text) {
+                                    alert(this);
+                                    console.log(this);
+                                    $(this).prop('selected', true);
+                                    //this.selected(true);
+                                }
+                            });
+                        {% endif %}
+                    {% endfor %}
+                }
+                {% endfor %}
             });
             $('#example').on('click', '.borrar', function () {
             });
@@ -77,8 +98,8 @@
                             <label class="required" for="id_email">Email:</label>
                             <input class="vTextField" id="id_email" placeholder="Email" maxlength="50" name="email"
                                    type="email" required>
-                            <label class="required" for="id_operario">Es Operario:</label>
-                            <input class="vTextField" id="id_operario" name="operario" type="checkbox">
+                            {#                            <label class="required" for="id_operario">Es Operario:</label>#}
+                            {#                            <input class="vTextField" id="id_operario" name="operario" type="checkbox">#}
                         </div>
                         <div class="form-group">
                             <label class="required" for="id_nombre">Nombre:</label>
@@ -96,7 +117,7 @@
                             <label class="required" for="id_silo">Seleccionar Silos:</label>
                             <select id="id_silo" name="silo" required size="2" multiple>
                                 {% for s in silos %}
-                                    <option value="{{ s.id }}">{{ s.ip_asignada }}</option>
+                                    <option name="itemSilo" value="{{ s.id }}">{{ s.ip_asignada }}</option>
                                 {% endfor %}
                             </select>
                         </div>
