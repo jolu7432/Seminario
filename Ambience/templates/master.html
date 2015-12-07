@@ -1,0 +1,200 @@
+{# Load the tag library #}
+{% load bootstrap3 %}
+
+{# Load CSS and JavaScript #}
+{% bootstrap_css %}
+{% bootstrap_javascript jquery=1 %}
+
+{# Display django.contrib.messages as Bootstrap alerts #}
+{% bootstrap_messages %}
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Ambience</title>
+    {# Archivos Meta #}
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta name="keywords" content="Agronomy Responsive web template, Bootstrap Web Templates, Flat Web Templates, Andriod Compatible web template,
+Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, SonyErricsson, Motorola web design"/>
+    {# Fin Archivos Meta #}
+    {# Archivos de Links #}
+    <link href="../static/css/bootstrap.css" rel="stylesheet" type="text/css"/>
+    <link href="../static/css/style.css" rel="stylesheet" type="text/css"/>
+    <link rel="stylesheet" type="text/css"
+          href="../static/dataTables-1.9.1/css/jquery.dataTables.css">
+    {# Fin Archivos de Links #}
+    {# Archivos de Scripts #}
+    <script src="../static/js/jquery-1.11.1.min.js"></script>
+    <script src="../static/js/responsiveslides.min.js"></script>
+    <script type="text/javascript" src="../static/js/move-top.js"></script>
+    <script type="text/javascript" src="../static/js/easing.js"></script>
+    <script type="text/javascript" charset="UTF-8"
+            src="../static/dataTables-1.9.1/js/jquery.dataTables.min.js"></script>
+    {# Fin Archivos de Scripts #}
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            /*
+             var defaults = {
+             containerID: 'toTop', // fading element id
+             containerHoverID: 'toTopHover', // fading element hover id
+             scrollSpeed: 1200,
+             easingType: 'linear'
+             };
+             */
+
+            $().UItoTop({easingType: 'easeOutQuart'});
+
+
+            //start - smoth - scrolling
+            jQuery(document).ready(function ($) {
+                $(".scroll").click(function (event) {
+                    event.preventDefault();
+                    $('html,body').animate({scrollTop: $(this.hash).offset().top}, 1200);
+                });
+            });
+
+            //End - smoth - scrolling
+
+            addEventListener("load", function () {
+                setTimeout(hideURLbar, 0);
+            }, false);
+            function hideURLbar() {
+                window.scrollTo(0, 1);
+            }
+
+            $(function () {
+                $("#slider").responsiveSlides({
+                    auto: true,
+                    nav: true,
+                    speed: 500,
+                    namespace: "callbacks",
+                    pager: true,
+                });
+            });
+
+            //script for menu
+            $("label.menu").click(function () {
+                $(".top-menu ul").slideToggle("slow", function () {
+                });
+            });
+            //script for menu
+        });
+    </script>
+    <style>
+        #contenedor {
+        }
+
+        #cabecera {
+        }
+
+        #izq {
+            background-color: darkred;
+            margin-top: 4%;
+            float: left;
+            width: 10%;
+            height: 1000px;
+        }
+
+        #contenido {
+            float: right;
+            width: 100%;
+            background-color: #2F4F4F;
+        }
+
+        #pie {
+            clear: both;
+        }
+
+        #msg {
+            color: red;
+            border-bottom: 1px solid #48484B;
+        {#            margin-top: 10%;#}{#            margin-left: 10%;#}
+
+        }
+
+        .cont {
+            background-color: black;
+        }
+
+        .contactgrid2 input[type="submit"] {
+            color: #fff;
+            background: #FFD204;
+            border: none;
+            font-size: 1.3em;
+            outline: none;
+            text-transform: uppercase;
+            padding: 10px 15px;
+        }
+
+        .contactgrid input[type="email"] {
+            width: 100%;
+            background: none;
+            outline: none;
+            border: none;
+            font-size: 15px;
+            color: #fff;
+            text-transform: capitalize;
+            padding: 15px 10px;
+            background: rgba(92, 131, 13, 1);
+        }
+    </style>
+
+    {% block Head %}
+    {% endblock %}
+</head>
+<body>
+<div id="contenedor">
+    <div class="header" id="home">
+        <div class="container">
+            <div class="header-top">
+                <div class="logo">
+                    <a href="index.html">Ambience</a>
+
+                    <p>"Los limites los pones tú"</p>
+                </div>
+                <div class='top-menu'>
+                    <label class="menu"> </label>
+                    <ul>
+                        <li><a id="index" href='principal'><span>Time Real</span></a></li>
+                        <li><a id="statistics" href='statistics'><span>Statistics</span></a></li>
+                        <li><a id="contact" href='contact'><span>Contact</span></a></li>
+                        <li><a id="abm" href='abm'><span>Abm</span></a></li>
+                        <li><a id="logout" href='logOut'><span style="background-color: red;">Logout</span></a>
+                        </li>
+                        <div class="clearfix"></div>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="contenido">
+        {% block Contenido %}
+        {% endblock %}
+    </div>
+
+    {% block Pie %}
+        <div id="pie">
+            <div class="footer-section">
+                <div class="container">
+                    <div class="footer-top">
+                        <div class="social-icons">
+                            <a href="#"><i class="icon1"></i></a>
+                            <a href="#"><i class="icon2"></i></a>
+                            <a href="#"><i class="icon3"></i></a>
+                        </div>
+                    </div>
+                    <div class="footer-bottom">
+                        <p> Copyright 2015 Made Software . All rights Reserved | Design by<a href="#"
+                                                                                             target="target_blank">Hernan
+                            Gigliotti & Jorge Tanos</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}
+</div>
+</body>
+</html>

@@ -1,0 +1,22 @@
+{% extends 'master.html' %}
+{% block Head %}
+    <script>
+        $(document).ready(function () {
+            //script for menu
+             $('#news').attr('class','active');
+            //script for menu
+        });
+    </script>
+{% endblock %}
+{% block Contenido %}
+    <!-- content-section-starts -->
+    <div class="contant">
+        <div class="pagenot-found">
+            <h3>404</h3>
+            <h1>{{ error }}</h1>
+            <p>oops could not found</p>
+            <a href="principal">back to home</a>
+        </div>
+    </div>
+{% endblock %}
+

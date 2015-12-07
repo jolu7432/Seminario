@@ -1,0 +1,43 @@
+{% extends 'master.html' %}
+{% block Head %}
+    <script>
+        $(document).ready(function () {
+            //script for menu
+             $('#news').attr('class','active');
+            //script for menu
+        });
+    </script>
+{% endblock %}
+{% block Contenido %}
+    <!-- content-section-starts -->
+
+    <div class="contant">
+        <div class="pagenot-found">
+            <h3>404</h3>
+
+            <p>oops could not found</p>
+            <a href="principal.html">back to home</a>
+        </div>
+    </div>
+
+    <div class="footer-section">
+        <div class="container">
+            <div class="footer-top">
+                <div class="social-icons">
+                    <a href="#"><i class="icon1"></i></a>
+                    <a href="#"><i class="icon2"></i></a>
+                    <a href="#"><i class="icon3"></i></a>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p> Copyright &copy;2015 Agronomy . All rights Reserved | Design by<a href="http://w3layouts.com"
+                                                                                      target="target_blank">W3layouts</a>
+                </p>
+            </div>
+
+            <a class="scroll" href="#home" id="toTop" style="display: block;"> <span id="toTopHover"
+                                                                                     style="opacity: 1;"> </span></a>
+        </div>
+    </div>
+{% endblock %}

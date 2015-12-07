@@ -1,0 +1,148 @@
+{% extends 'master.html' %}
+{% block Head %}
+    <script>
+        $(document).ready(function () {
+            //script for menu
+            $('#abm').attr('class', 'active');
+            //script for menu
+
+            //});
+            // alert({ puesto.user }});
+            {##}
+            {% for us in usuarios %}
+                var tr = $('<tr>').appendTo($('#tbody'));
+                $('<td>').text('{{us.username}}').appendTo(tr);
+                $('<td>').text('{{us.first_name}}').appendTo(tr);
+                $('<td>').text('{{us.last_name}}').appendTo(tr);
+                $('<td>').text('{{us.email}}').appendTo(tr);
+                //$('<td>').text('{us.direccion}}').appendTo(tr);
+                //var img = $('<td>').appendTo(tr);
+                //var div = $('<div id="d2" class="img-circle">').appendTo(img);
+                //{ load staticfiles %}
+                // var pro = '{us.publicidad}}';
+                //pro = pro.replace("Eventos", "");
+                //$('<img src="' + pro + '" alt="..." class="img-circle" style="height: 100px" ">').appendTo(div);
+                $('<td>').text('{{us.empresa}}').appendTo(tr);
+                var silos = $('<td>').appendTo(tr);
+                var combo = $('<select>').appendTo(silos);
+                {% for p in puestos %}
+                    {% if p.user == us %}
+                        $('<option value={{ p.silo.ip_asignada }}>').text('{{ p.silo.ip_asignada }}').appendTo(combo);
+                    {% endif %}
+                {% endfor %}
+                /* $.post('traerSilo', {idUser: { us.id }}}, function (response) {
+                     responseJson = jQuery.parseJSON(response);
+                     $.each(responseJson, function (index, item) {
+                     $('<option value="' + item.fields.ip_asignada + '">').text(item.fields.ip_asignada).appendTo(combo);
+                     });
+                 });*/
+                $('<td>').text('{{us.es_operario}}').appendTo(tr);
+                var accion = $('<td>').appendTo(tr);
+                $('<button id="1" title="Editar" class="editar"><img src="iconos/editar.png" alt="Editar">').appendTo(accion);
+                $('<button id="2" title="Borrar" class="borrar"><img src="iconos/remove.png" alt="Borrar">').appendTo(accion);
+
+            {% endfor %}
+
+            $('#example').dataTable();
+            $('#example').on('click', '.editar', function () {
+
+            });
+            $('#example').on('click', '.borrar', function () {
+            });
+        });
+    </script>
+{% endblock %}
+{% block Contenido %}
+    <!-- content-section-starts -->
+    <div class="service-section">
+        <div class="container">
+            <h3>Altas</h3>
+
+            <div class="cont">
+                <form action="" method="post">
+                    {% csrf_token %}
+                    <div id="rcorners" class="container">
+                        <div class="form-group">
+                            <label class="required" for="id_usuario">Usuario:</label>
+                            <input class="vTextField" id="id_usuario" placeholder="Usuario" maxlength="50"
+                                   name="usuario"
+                                   type="text"
+                                   required>
+
+                            <label for="id_password">Password</label>
+                            <input type="Password" class="vTextField" id="id_password" placeholder="Password"
+                                   name="password"
+                                   required>
+
+                            <label class="required" for="id_email">Email:</label>
+                            <input class="vTextField" id="id_email" placeholder="Email" maxlength="50" name="email"
+                                   type="email" required>
+                            <label class="required" for="id_operario">Es Operario:</label>
+                            <input class="vTextField" id="id_operario" name="operario" type="checkbox">
+                        </div>
+                        <div class="form-group">
+                            <label class="required" for="id_nombre">Nombre:</label>
+                            <input class="vTextField" id="id_nombre" placeholder="Nombre" maxlength="50" name="nombre"
+                                   type="text" required>
+
+                            <label class="required" for="id_apellido">Apellido:</label>
+                            <input class="vTextField" id="id_apellido" placeholder="Apellido" maxlength="50"
+                                   name="apellido"
+                                   type="text" required>
+                            <label class="required" for="id_direccion">Direccion:</label>
+                            <input class="vTextField" id="id_direccion" placeholder="Direccion" maxlength="50"
+                                   name="direccion" type="text"
+                                   required>
+                            <label class="required" for="id_silo">Seleccionar Silos:</label>
+                            <select id="id_silo" name="silo" required size="2" multiple>
+                                {% for s in silos %}
+                                    <option value="{{ s.id }}">{{ s.ip_asignada }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="contactgrid2">
+                        <input type="submit" value="Save" class="navbar-btn btn-primary" name="save">
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="container">
+            <h3>Listado De Usuarios</h3>
+
+            <div id="msg"></div>
+            <div id="listUsuarios">
+                <table id="example" class="dataTable" cellspacing="0" width="100%">
+                    <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Nombre</th>
+                        <th>Apellido</th>
+                        <th>Email</th>
+                        <!--<th>Direccion</th>-->
+                        <th>Empresa</th>
+                        <th>Silo</th>
+                        <th>Operario</th>
+                        <th>Accion</th>
+                    </tr>
+                    </thead>
+                    <tfoot>
+                    <tr>
+                        <th>User</th>
+                        <th>Nombre</th>
+                        <th>Apellido</th>
+                        <th>Email</th>
+                        <!--<th>Direccion</th>-->
+                        <th>Empresa</th>
+                        <th>Silo</th>
+                        <th>Operario</th>
+                        <th>Accion</th>
+                    </tr>
+                    </tfoot>
+                    <tbody id="tbody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

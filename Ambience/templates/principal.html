@@ -1,0 +1,328 @@
+{% extends 'master.html' %}
+{% block Head %}
+    <link rel="stylesheet" href="../static/css/swipebox.css">
+    <script src="../static/js/jquery.swipebox.min.js"></script>
+    <script src="../static/js/jquery.timer.js"></script>
+    <script src="../static/js/highcharts.js"></script>
+    <script src="../static/js/highcharts-more.js"></script>
+    <script type="text/javascript">
+        var PORT = "80";
+        var verificaNoSeleccionSilo = false;
+        $(document).ready(function () {
+            jQuery(function ($) {
+                $(".swipebox").swipebox();
+            });
+            //script for menu
+            $('#index').attr('class', 'active');
+            //script for menu
+
+            $('#dropSilos').change(function () {
+                graficarSensor('grafico1', 'sensor1', "http://" + $('#dropSilos').val() + ":" + PORT );
+                graficarSensor('grafico2', 'sensor1', "http://" + $('#dropSilos').val() + ":" + PORT);
+            });
+            graficarSensor('grafico1', 'sensor1', "");
+            graficarSensor('grafico2', 'sensor1', "");
+            setTimeout('verifica()', 500);
+        });
+
+        function graficarSensor(grafico, sensor, urlIpSilo) {
+            $('#' + grafico).highcharts({
+                        chart: {
+                            type: 'gauge',
+                            plotBackgroundColor: 1,
+                            plotBackgroundImage: null,
+                            plotBorderWidth: 0,
+                            plotShadow: false
+                        },
+
+                        title: {
+                            text: 'Temperatura y Humedad'
+                        },
+
+                        pane: {
+                            startAngle: -150,
+                            endAngle: 150,
+                            background: [{
+                                backgroundColor: {
+                                    linearGradient: {x1: 0, y1: 0, x2: 0, y2: 1},
+                                    stops: [
+                                        [0, '#FFF'],
+                                        [1, '#333']
+                                    ]
+                                },
+                                borderWidth: 0,
+                                outerRadius: '109%'
+                            }, {
+                                backgroundColor: {
+                                    linearGradient: {x1: 0, y1: 0, x2: 0, y2: 1},
+                                    stops: [
+                                        [0, '#333'],
+                                        [1, '#FFF']
+                                    ]
+                                },
+                                borderWidth: 1,
+                                outerRadius: '107%'
+                            }, {
+                                // default background
+                            }, {
+                                backgroundColor: '#DDD',
+                                borderWidth: 0,
+                                outerRadius: '105%',
+                                innerRadius: '103%'
+                            }]
+                        },
+
+                        // the value axis
+                        yAxis: [{
+                            min: 0,
+                            max: 40,
+
+                            tickPosition: 'outside',
+                            lineWidth: 2,
+                            minorTickInterval: 'auto',
+                            minorTickWidth: 1,
+                            minorTickLength: 10,
+                            minorTickPosition: 'outside',
+                            minorTickColor: '#666',
+
+                            tickPixelInterval: 30,
+                            tickWidth: 2,
+                            tickPosition: 'outside',
+                            tickLength: 10,
+                            tickColor: '#666',
+                            labels: {
+                                step: 2,
+                                rotation: 'auto'
+                            },
+                            title: {
+                                text: '%',
+                                x: 0, y: 140,
+
+                            },
+                            plotBands: [{
+                                from: 0,
+                                to: 20,
+                                color: '#55BF3B' // green
+                            }, {
+                                from: 20,
+                                to: 26,
+                                color: '#DDDF0D' // yellow
+                            }, {
+                                from: 26,
+                                to: 40,
+                                color: '#DF5353' // red
+                            }]
+                        }, {
+                            min: 0,
+                            max: 100,
+
+                            tickPosition: 'outside',
+                            minorTickInterval: 'auto',
+                            minorTickWidth: 1,
+                            minorTickLength: 10,
+                            minorTickPosition: 'outside',
+                            minorTickColor: '#666',
+                            tickPixelInterval: 30,
+                            tickWidth: 2,
+                            tickPosition: 'outside',
+                            tickLength: 10,
+                            tickColor: '#666',
+                            offset: -70,
+                            labels: {
+                                step: 2,
+                                rotation: 'auto',
+                            },
+                            title: {
+                                text: 'Cº',
+                                x: 0, y: -25,
+                            },
+                            plotBands: [{
+                                from: 0,
+                                to: 30,
+                                color: '#55BF3B' // green
+                            }, {
+                                from: 30,
+                                to: 60,
+                                color: '#DDDF0D' // yellow
+                            }, {
+                                from: 60,
+                                to: 100,
+                                color: '#DF5353' // red
+                            }]
+                        }],
+
+                        series: [{
+                            name: 'Temperatura',
+                            data: [0],
+                            dataLabels: {
+                                borderWidth: 2,
+                                borderColor: 'blue',
+                                padding: 5,
+                                borderRadius: 2,
+                                verticalAlign: 'center',
+                                y: 110,
+                                style: {
+                                    fontWeight: 'normal'
+                                }
+                            },
+                            dial: {
+                                radius: "90%",
+                                rearLength: "10%",
+                                backgroundColor: 'blue',
+                                borderColor: 'black',
+                                borderWidth: 1,
+                                baseWidth: 10,
+                                topWidth: 1,
+                                baseLength: '90%', // of radius
+                            },
+                            color: 'blue',
+                            tooltip: {
+                                valueSuffix: ' Cº'
+
+                            }
+                        }, {
+                            name: 'Humedad',
+                            data: [0],
+                            dataLabels: {
+                                borderWidth: 2,
+                                borderColor: 'silver',
+                                padding: 5,
+                                borderRadius: 2,
+                                verticalAlign: 'center',
+                                y: 50,
+                                enabled: false,
+                                style: {
+                                    fontWeight: 'normal'
+                                }
+                            },
+                            dial: {
+                                radius: "30%",
+                                rearLength: "5%",
+                                backgroundColor: 'silver',
+                                borderColor: 'black',
+                                borderWidth: 1,
+                                baseWidth: 10,
+                                topWidth: 1,
+                                baseLength: '30%', // of radius
+                            },
+                            color: 'silver',
+                            tooltip: {
+                                valueSuffix: ' %',
+
+                            }
+                        }]
+
+                    },
+                    // Add some life
+                    function (chart) {
+                        if (!chart.renderer.forExport) {
+                            if ($('#dropSilos').val() != "") {
+                                var primeraVez = true;
+                                var errorConexion = false;
+                                setInterval(function () {
+                                    if ($('#dropSilos').val() != "" && !errorConexion) {
+                                        var url = urlIpSilo;
+                                        var head = document.getElementsByTagName("head")[0];
+                                        var script = document.createElement("script");
+                                        script.type = "text/javascript";
+                                        head.appendChild(script);
+                                        script.src = url;
+                                        var point = chart.series[0].points[0],
+                                                newVal;
+                                        var pointHum = chart.series[1].points[0], newValH;
+                                        if (primeraVez) {
+                                            newVal = 48;
+                                            newValH = 96;// - (15 * 0.6);
+                                            primeraVez = false;
+                                        } else {
+                                            try {
+                                                if (sensor == "sensor1") {
+                                                    newVal = t1;
+                                                    newValH = h1 - (h1 * 0.6);
+                                                } else {
+                                                    newVal = t2;
+                                                    newValH = h2 - (h2 * 0.6);
+                                                }
+                                            }
+                                            catch (error) {
+                                                errorConexion = true;
+                                                $('#msg2').text('Error al establecer conexion...').show().fadeOut(10000);
+                                                $('#dropSilos').val("");
+                                            }
+                                        }
+                                        point.update(newVal);
+                                        pointHum.update(newValH);
+                                    }
+                                }, 3000);
+                            } else {
+                                verificaNoSeleccionSilo = true;
+                            }
+                        }
+                    });
+        }
+        function verifica() {
+            if (verificaNoSeleccionSilo) {
+                $('#msg').text('Seleccione un Silo para visualizar sus metricas...').show().fadeOut(10000);
+            }
+        }
+    </script>
+    <style type="text/css">
+        .opacDiv {
+            align: center;
+            filter: alpha(opacity=50);
+            opacity: 0.5;
+
+        }
+    </style>
+{% endblock %}
+{% block Contenido %}
+    <div class="service-section">
+        <div class="container">
+            <h3>Datos Tiempo Real</h3>
+
+            <div class="cont">
+                <div id="msg" style="display: none;">
+                </div>
+                <select id="dropSilos"> <!--Agregar los Silos dependiendo del Usuario-->
+                    <option value="">Seleccionar Silo...</option>
+                    {% for s in silos %}
+                        <option value="{{ s.ip_asignada }}">{{ s.ip_asignada }}</option>
+                        </option>
+                    {% endfor %}
+                </select>
+
+                <div id="msg2" style="display: none;">
+                </div>
+            </div>
+            <div class="service-grids ">
+                <div class="service-grid1">
+                    <div class="col-md-6 service-grid">
+                        <h4>Sensor 1</h4>
+
+                        <div id="grafico1"></div>
+                    </div>
+                    <div class="col-md-6 service-grid">
+                        <h4>Sensor 2</h4>
+
+                        <div id="grafico2"></div>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <!--<div class="service-grid2 opacDiv">
+                <div class="col-md-6 service-grid ">
+                    <h4>Sensor 3</h4>
+
+                    <div id="grafico3"></div>
+                </div>
+            </div>
+            <div class="col-md-6 service-grid">
+                <h4>Sensor 4</h4>
+
+                <div id="grafico4"></div>
+            </div>-->
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="clearfix"></div>
+{% endblock %}
