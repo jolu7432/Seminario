@@ -12,16 +12,23 @@
 <head>
     <meta charset="UTF-8">
     <title>Ambience SA.</title>
+    <script>
+        $(document).ready(function () {
+            $('#oc').click(function () {
+                alert('Ponete en contacto con el administrador');
+            });
+        });
+    </script>
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background: #fff;
-
-            color: #fff;
-            font-family: Arial;
-            font-size: 12px;
-        }
+        {#        body {#}
+        {#            margin: 0;#}
+        {#            padding: 0;#}
+        {#            background: #fff;#}
+        {##}
+        {#            color: #fff;#}
+        {#            font-family: Arial;#}
+        {#            font-size: 12px;#}
+        {#        }#}
 
         .body {
             position: absolute;
@@ -29,8 +36,8 @@
             left: -20px;
             right: -40px;
             bottom: -40px;
-            width: auto;
-            height: auto;
+            width: 101%;
+            height: 102%;
             background-image: url("static/images/silos.png");
             background-size: cover;
             -webkit-filter: blur(5px);
@@ -43,8 +50,8 @@
             left: -20px;
             right: -40px;
             bottom: -40px;
-            width: auto;
-            height: auto;
+            width: 101%;
+            height: 102%;
             background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, rgba(0, 0, 0, 0)), color-stop(100%, rgba(0, 0, 0, 0.65))); /* Chrome,Safari4+ */
             z-index: 1;
             opacity: 0.7;
@@ -159,11 +166,16 @@
     <div>Site<span> Ambience</span></div>
 </div>
 <br>
+
 <div class="login">
     <form id="login" action="logIn" method="post">
-        <input type="text" placeholder="username" name="user" autofocus required><br>
-        <input type="password" placeholder="password" name="pass" required><br>
+        <input type="text" placeholder="Username" name="user" autofocus required><br>
+        <input type="password" placeholder="Password" name="pass" required><br>
         <input type="submit" value="Login">
+        </br>
+        <a id="oc" href="#" style="color: white;">Olvidaste tu contraseña?</a>
+        </br>
+        {{ error }}
     </form>
 </div>
 </body>

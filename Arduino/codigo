@@ -1,0 +1,299 @@
+#include <Ethernet.h>    //Configurar el shield de ethernet
+#include <EthernetUdp.h> //Actualizar timer por NTP
+#include <Time.h>        //Manejar reloj interno
+#include <SPI.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <DHT.h>        //Convertir los parametros de los sensores a temperatura y humedad
+#define DHTSENSOR1PIN 2 //Seleccionamos el pin en el que se conectará el sensor uno
+#define DHTSENSOR2PIN 3 //Seleccionamos el pin en el que se conectará el sensor dos
+#define DHTTYPE DHT11 //Se selecciona el DHT11 (hay //otros DHT)
+DHT dht1(DHTSENSOR1PIN, DHTTYPE); //Se inicia una variable que será usada por Arduino para comunicarse con el sensor uno
+DHT dht2(DHTSENSOR2PIN, DHTTYPE);  //Se inicia una variable que será usada por Arduino para comunicarse con el sensor dos
+
+// Configuracion del Ethernet Shield
+byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFF, 0xEE}; // Direccion MAC
+byte ip[] = { 172, 20, 10, 12 }; // Direccion IP del Arduino
+byte ipServer[] = { 172, 20, 10, 11 }; // Direccion IP del servidor
+int port = 1000;
+EthernetServer server(80); //puerte de arduino como server
+
+// NTP Servers:
+IPAddress timeServer(132, 163, 4, 101); // time-a.timefreq.bldrdoc.gov
+// IPAddress timeServer(132, 163, 4, 102); // time-b.timefreq.bldrdoc.gov
+// IPAddress timeServer(132, 163, 4, 103); // time-c.timefreq.bldrdoc.gov
+
+const int timeZone = -3;    // Bs As
+//const int timeZone = +1;  // Central European Time
+//const int timeZone = -5;  // Eastern Standard Time (USA)
+//const int timeZone = -4;  // Eastern Daylight Time (USA)
+//const int timeZone = -8;  // Pacific Standard Time (USA)
+//const int timeZone = -7;  // Pacific Daylight Time (USA)
+
+
+EthernetUDP Udp;
+unsigned int localPortUDP = 8888;  // local port to listen for UDP packets
+
+//Token de Seguridad para conexion. Se valida con la aplicacion web.
+String token = "1234";
+
+//Variables
+float TEMPMAXREF = 25.0;  //Temperatura maxima, al superar dispara alerta.
+float HUMMAXREF = 45.0;   //Humedad maxima, al superar dispara alerta.
+int ledPin = 8;           //Pin de salida digital que comanda el rele.
+//variables para alojar temperatura/humedad segun la cantidad de sensores que se conecten
+float h1;
+float t1;
+float h2;
+float t2;
+
+int seg = 60; //usar como medidor para ejecutar llamado al server para alertas
+int seg2 = 60; //usar como medidor para ejecutar llamado al server para periodicas
+
+long previousMillis = 0;
+
+long intervalOn = 120000;           // 2 minutos  envio 3.600.000 = 1 hora 86.400.000 un dia
+unsigned long currentMillis;
+
+
+void setup() {
+  Serial.begin(9600); //Se inicia la comunicación serial
+  delay(1000); // Esperamos 1 segundo de cortesia
+  dht1.begin(); //Se inicia el sensor externo
+  dht2.begin(); //Se inicia el sensor interno
+  delay(1000); // Esperamos 1 segundo de cortesia
+  Ethernet.begin(mac, ip); // Inicializamos el Ethernet Shield, si no agregamo la ip se utilizaria el servidor DHCP.
+  server.begin();
+  Serial.print("server is at ");
+  Serial.println(Ethernet.localIP());
+  delay(1000); // Esperamos 1 segundo de cortesia
+  pinMode(ledPin, OUTPUT); // seteamos modo del pin seleccionado
+  delay(1000); //Esperamos 1 segundo de cortesia.
+  Udp.begin(localPortUDP); //Iniciamos la conexion UDP para actualizar el timer interno.
+  Serial.println("waiting for sync");
+  setSyncProvider(getNtpTime); //Sincronizamos la fecha y hora con el servidor NTP.
+  if (timeStatus() == timeNotSet) {
+    Serial.println("No se sincronizo la hora correctamente");
+  }
+}
+
+time_t tomaPeriodica = SetFecha(2000, 1, 1, 03, 53, 0);  // 1 enero 2000  20:17 //Se utiliza para setear cuando se toman la metricas periodicas de los sensores. En este caso año mes y dia no se utilizan.
+
+
+void loop() {
+  obtenerDatosSensores();
+  comandarLed();
+  tiempoReal();
+  if (verificaTempHum() && seg >= 60) { //60 por 5 seg por loop = 5 minutos
+    envioAServerParaPersistir(true);
+    seg = 0;
+  }
+  seg = seg + 1;
+  digitalClockDisplay();
+  if (timeStatus() != timeNotSet) {
+    if (periodica(tomaPeriodica)&& seg2 >= 20) { //si corresponde con la fecha seteada hora/minutos y no guardo se procede a conectar con el servidor y guardar los parametros.
+      envioAServerParaPersistir(false);
+      Serial.println("Guardado periodico");
+      seg2 = 0;
+    }
+  } else {
+    setSyncProvider(getNtpTime); //Sincronizamos la fecha y hora con el servidor NTP.
+  }
+  seg2 = seg2 + 1;
+  //y esperamos 5 segundo para volver a leer los datos del sensor.
+  delay(5000);
+}
+
+void obtenerDatosSensores() {
+  h1 = dht1.readHumidity(); //Se lee la humedad sensor externo
+  t1 = dht1.readTemperature(); //Se lee la temperatura sensor externo
+  h2 = dht2.readHumidity(); //Se lee la humedad sensor interno
+  t2 = dht2.readTemperature(); //Se lee la temperatura sensor interno
+  // lo enviamos al puerto serie
+  Serial.println(String(h1) + "|" + String(t1) + "|" + String(h2) + "|" + String(t2));
+}
+
+void comandarLed() {
+  if (t1 > TEMPMAXREF or  t2 > TEMPMAXREF or h1 > HUMMAXREF or h2 > HUMMAXREF ) {
+    digitalWrite(ledPin, HIGH);  // Enciende el LED
+  } else {
+    digitalWrite(ledPin, LOW);   // Apaga el LED
+  }
+}
+
+void tiempoReal() {
+  // listen for incoming clients
+  EthernetClient client = server.available();
+  if (client) {
+    Serial.println("new client");
+    // an http request ends with a blank line
+    boolean currentLineIsBlank = true;
+    while (client.connected()) {
+      if (client.available()) {
+        char c = client.read();
+        Serial.write(c);
+        // if you've gotten to the end of the line (received a newline
+        // character) and the line is blank, the http request has ended,
+        // so you can send a reply
+        if (c == '\n' && currentLineIsBlank) {
+          // enviar una respuesta de cabecera http estandar
+          client.println("var t1=" + String(t1, 2));
+          client.println("var h1=" + String(h1, 2));
+          client.println("var t2=" + String(t2, 2));
+          client.println("var h2=" + String(h2, 2));
+          break;
+        }
+        if (c == '\n') {
+          // you're starting a new line
+          currentLineIsBlank = true;
+        }
+        else if (c != '\r') {
+          // you've gotten a character on the current line
+          currentLineIsBlank = false;
+        }
+      }
+    }
+    // give the web browser time to receive the data
+    delay(1);
+    // close the connection:
+    client.stop();
+    Serial.println("client disconnected");
+  }
+}
+
+void envioAServerParaPersistir(bool esAlerta) {
+  EthernetClient clientServer;
+  // Proceso de envio de muestras al servidor
+  Serial.println("Connecting...");
+  if (clientServer.connect(ipServer, port) > 0) { // Conexion con el servidor
+    Serial.println("Conectado");
+    clientServer.println("GET /server?token=" + token + "&t1=" + t1 + "&h1=" + h1 + "&t2=" + t2 + "&h2=" + h2 + "&alerta=" + esAlerta + " HTTP/1.0"); // Enviamos los datos por GET
+    clientServer.println("User-Agent: Arduino 1.0");
+    clientServer.println();
+    Serial.println("Enviado...");
+    Serial.println("GET /server?token=" + token + "&t1=" + t1 + "&h1=" + h1 + "&t2=" + t2 + "&h2=" + h2 + "&alerta=" + esAlerta + " HTTP/1.0");
+    Serial.println("Respuesta...");
+    int i = 0;
+    while (i < 312) { //312
+      Serial.write(clientServer.read());
+      i++;
+    }
+  } else {
+    Serial.println("Fallo en la conexion");
+  }
+  if (!clientServer.connected()) {
+    Serial.println("Disconnected!");
+  }
+  clientServer.stop();
+  clientServer.flush();
+  //delay(60000); // Espero 60 seg antes de tomar otra muestra
+}
+
+bool verificaTempHum() {
+  bool resp = false;
+  if (t1 > TEMPMAXREF or  t2 > TEMPMAXREF or h1 > HUMMAXREF or h2 > HUMMAXREF ) {
+    resp = true;
+  }
+  return resp;
+}
+
+time_t SetFecha(int y, int m, int d, int h, int mi, int s  )
+{ tmElements_t Fecha ;
+  Fecha.Second = s;
+  Fecha.Minute = mi;
+  Fecha.Hour = h;
+  Fecha.Day = d ;
+  Fecha.Month = m ;
+  Fecha.Year = y - 1970 ;
+  return makeTime(Fecha);
+}
+void printFecha(time_t  t)
+{
+  Serial.print(day(t)) ;    Serial.print(+ "/") ;   Serial.print(month(t));   Serial.print(+ "/") ;
+  Serial.print(year(t));    Serial.print( " ") ;
+  Serial.print(hour(t));   Serial.print(+ ":") ;   Serial.print(minute(t));   Serial.print(":") ;
+  Serial.println(second(t));
+  delay(1000);
+}
+
+bool periodica(time_t t) {
+  bool resp = false;
+  if (hour(t) == hour() and minute(t) == minute()) {
+    resp = true;
+  }
+  return resp;
+}
+
+void digitalClockDisplay() {
+  //Muestra la hora en formato digital.
+  Serial.print(hour());
+  printDigits(minute());
+  printDigits(second());
+  Serial.print(" ");
+  Serial.print(day());
+  Serial.print(" ");
+  Serial.print(month());
+  Serial.print(" ");
+  Serial.print(year());
+  Serial.println();
+}
+
+void printDigits(int digits) {
+  // utilidad para convertir digitos a reloj digital.
+  Serial.print(":");
+  if (digits < 10)
+    Serial.print('0');
+  Serial.print(digits);
+}
+
+/*-------- NTP code ----------*/
+
+const int NTP_PACKET_SIZE = 48; // NTP time is in the first 48 bytes of message
+byte packetBuffer[NTP_PACKET_SIZE]; //buffer to hold incoming & outgoing packets
+
+time_t getNtpTime()
+{
+  while (Udp.parsePacket() > 0) ; // discard any previously received packets
+  Serial.println("Transmit NTP Request");
+  sendNTPpacket(timeServer);
+  uint32_t beginWait = millis();
+  while (millis() - beginWait < 1500) {
+    int size = Udp.parsePacket();
+    if (size >= NTP_PACKET_SIZE) {
+      Serial.println("Receive NTP Response");
+      Udp.read(packetBuffer, NTP_PACKET_SIZE);  // read packet into the buffer
+      unsigned long secsSince1900;
+      // convert four bytes starting at location 40 to a long integer
+      secsSince1900 =  (unsigned long)packetBuffer[40] << 24;
+      secsSince1900 |= (unsigned long)packetBuffer[41] << 16;
+      secsSince1900 |= (unsigned long)packetBuffer[42] << 8;
+      secsSince1900 |= (unsigned long)packetBuffer[43];
+      return secsSince1900 - 2208988800UL + timeZone * SECS_PER_HOUR;
+    }
+  }
+  Serial.println("No NTP Response :-(");
+  return 0; // return 0 if unable to get the time
+}
+
+// send an NTP request to the time server at the given address
+void sendNTPpacket(IPAddress & address)
+{
+  // set all bytes in the buffer to 0
+  memset(packetBuffer, 0, NTP_PACKET_SIZE);
+  // Initialize values needed to form NTP request
+  // (see URL above for details on the packets)
+  packetBuffer[0] = 0b11100011;   // LI, Version, Mode
+  packetBuffer[1] = 0;     // Stratum, or type of clock
+  packetBuffer[2] = 6;     // Polling Interval
+  packetBuffer[3] = 0xEC;  // Peer Clock Precision
+  // 8 bytes of zero for Root Delay & Root Dispersion
+  packetBuffer[12]  = 49;
+  packetBuffer[13]  = 0x4E;
+  packetBuffer[14]  = 49;
+  packetBuffer[15]  = 52;
+  // all NTP fields have been given values, now
+  // you can send a packet requesting a timestamp:
+  Udp.beginPacket(address, 123); //NTP requests are to port 123
+  Udp.write(packetBuffer, NTP_PACKET_SIZE);
+  Udp.endPacket();
+}

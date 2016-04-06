@@ -33,4 +33,4 @@ admin.site.register(Alerta, AlertaAdmin)
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
 
-admin.AdminSite.site_url = "principal"
+admin.AdminSite.site_url = "/principal"

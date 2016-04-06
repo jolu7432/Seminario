@@ -1,13 +1,13 @@
 {% extends 'master.html' %}
 {% block Head %}
-    <link rel="stylesheet" href="../static/css/swipebox.css">
+    <link rel="stylesheet" href="../static/css/swipebox.css" xmlns="http://www.w3.org/1999/html">
     <script src="../static/js/jquery.swipebox.min.js"></script>
     <script src="../static/js/jquery.timer.js"></script>
     <script src="../static/js/highcharts.js"></script>
     <script src="../static/js/highcharts-more.js"></script>
     <script type="text/javascript">
         var PORT = "80";
-        var verificaNoSeleccionSilo = false;
+        var NoSeleccionSilo = true;
         $(document).ready(function () {
             jQuery(function ($) {
                 $(".swipebox").swipebox();
@@ -17,19 +17,42 @@
             //script for menu
 
             $('#dropSilos').change(function () {
-                graficarSensor('grafico1', 'sensor1', "http://" + $('#dropSilos').val() + ":" + PORT );
-                graficarSensor('grafico2', 'sensor1', "http://" + $('#dropSilos').val() + ":" + PORT);
+                $('#contSensores').html("");
+                if ($('#dropSilos').val() != "") {
+                    var ip = $('#dropSilos option:selected').html().split(' ')[0];
+                    $.post('traerSensores', {idSilo: $('#dropSilos').val()}, function (response) {
+                        var i = 1;
+                        var fila = 1;
+                        var entrar = true;
+                        responseJson = jQuery.parseJSON(response);
+                        var div1;
+                        $.each(responseJson, function (index, item) {
+                            if (entrar) {
+                                div1 = $('<div class="service-grid' + fila + '">').appendTo($('#contSensores'));
+                                fila++;
+                                entrar = false;
+                            } else {
+                                if (i % 2 == 0) {
+                                    entrar = true;
+                                }
+                            }
+                            var div2 = $('<div class="col-md-6 service-grid">').appendTo(div1);
+                            $('<h4>Sensor ' + i + '</h4>').appendTo(div2);
+                            $('<div id="grafico' + i + '">').appendTo(div2);
+                            graficarSensor('grafico' + i, 'sensor' + i, ip);
+                            i++;
+                        });
+                    });
+                }
             });
-            graficarSensor('grafico1', 'sensor1', "");
-            graficarSensor('grafico2', 'sensor1', "");
             setTimeout('verifica()', 500);
         });
 
-        function graficarSensor(grafico, sensor, urlIpSilo) {
+        function graficarSensor(grafico, sensor, IpSilo) {
             $('#' + grafico).highcharts({
                         chart: {
                             type: 'gauge',
-                            plotBackgroundColor: 1,
+                            plotBackgroundColor: 0,
                             plotBackgroundImage: null,
                             plotBorderWidth: 0,
                             plotShadow: false
@@ -220,13 +243,15 @@
                                 var primeraVez = true;
                                 var errorConexion = false;
                                 setInterval(function () {
-                                    if ($('#dropSilos').val() != "" && !errorConexion) {
-                                        var url = urlIpSilo;
+                                    if ($('#dropSilos option:selected').html().split(' ')[0] == IpSilo && !errorConexion) {
+                                        var url = "http://" + IpSilo + ":" + PORT;
                                         var head = document.getElementsByTagName("head")[0];
+                                        $('#scriptArduino').remove();
                                         var script = document.createElement("script");
                                         script.type = "text/javascript";
-                                        head.appendChild(script);
                                         script.src = url;
+                                        script.id = "scriptArduino";
+                                        head.appendChild(script);
                                         var point = chart.series[0].points[0],
                                                 newVal;
                                         var pointHum = chart.series[1].points[0], newValH;
@@ -239,15 +264,26 @@
                                                 if (sensor == "sensor1") {
                                                     newVal = t1;
                                                     newValH = h1 - (h1 * 0.6);
-                                                } else {
+                                                }
+                                                if (sensor == "sensor2") {
                                                     newVal = t2;
                                                     newValH = h2 - (h2 * 0.6);
+                                                }
+                                                if (sensor == "sensor3") {
+                                                    newVal = t3;
+                                                    newValH = h3 - (h3 * 0.6);
+                                                }
+                                                if (sensor == "sensor4") {
+                                                    newVal = t4;
+                                                    newValH = h4 - (h4 * 0.6);
                                                 }
                                             }
                                             catch (error) {
                                                 errorConexion = true;
                                                 $('#msg2').text('Error al establecer conexion...').show().fadeOut(10000);
-                                                $('#dropSilos').val("");
+                                                setTimeout('$("#dropSilos").val("")', 500);
+                                                setTimeout('$("#contSensores").html("")', 900);
+                                                $('#scriptArduino').remove();
                                             }
                                         }
                                         point.update(newVal);
@@ -255,72 +291,63 @@
                                     }
                                 }, 3000);
                             } else {
-                                verificaNoSeleccionSilo = true;
+                                NoSeleccionSilo = true;
                             }
                         }
                     });
         }
         function verifica() {
-            if (verificaNoSeleccionSilo) {
-                $('#msg').text('Seleccione un Silo para visualizar sus metricas...').show().fadeOut(10000);
+            if (NoSeleccionSilo) {
+                $('#msg').text('Seleccione un Silo para visualizar sus metricas...').show().fadeOut(8000);
             }
         }
     </script>
-    <style type="text/css">
-        .opacDiv {
-            align: center;
-            filter: alpha(opacity=50);
-            opacity: 0.5;
-
-        }
-    </style>
 {% endblock %}
 {% block Contenido %}
     <div class="service-section">
         <div class="container">
             <h3>Datos Tiempo Real</h3>
 
-            <div class="cont">
-                <div id="msg" style="display: none;">
-                </div>
-                <select id="dropSilos"> <!--Agregar los Silos dependiendo del Usuario-->
-                    <option value="">Seleccionar Silo...</option>
-                    {% for s in silos %}
-                        <option value="{{ s.ip_asignada }}">{{ s.ip_asignada }}</option>
-                        </option>
-                    {% endfor %}
-                </select>
-
-                <div id="msg2" style="display: none;">
-                </div>
-            </div>
-            <div class="service-grids ">
-                <div class="service-grid1">
-                    <div class="col-md-6 service-grid">
-                        <h4>Sensor 1</h4>
-
-                        <div id="grafico1"></div>
-                    </div>
-                    <div class="col-md-6 service-grid">
-                        <h4>Sensor 2</h4>
-
-                        <div id="grafico2"></div>
-                    </div>
-                </div>
-                <div class="clearfix"></div>
-            </div>
-            <!--<div class="service-grid2 opacDiv">
-                <div class="col-md-6 service-grid ">
-                    <h4>Sensor 3</h4>
-
-                    <div id="grafico3"></div>
+            <div class="cont form-group">
+                <div class="col-md-4 col-md-offset-4">
+                    <select id="dropSilos" class="form-control"> <!--Agregar los Silos dependiendo del Usuario-->
+                        <option value="">Seleccionar Silo...</option>
+                        {% for s in silos %}
+                            {% if user.is_staff %}
+                                <option name="itemSilo"
+                                        value="{{ s.id }}">{{ s.ip_asignada }} "{{ s.empresa }}"
+                                </option>
+                            {% else %}
+                                <option name="itemSilo" value="{{ s.id }}">{{ s.ip_asignada }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
                 </div>
             </div>
-            <div class="col-md-6 service-grid">
-                <h4>Sensor 4</h4>
+            <br>
+            </br>
 
-                <div id="grafico4"></div>
-            </div>-->
+            <div id="msg" style="display: none;">
+            </div>
+            <div id="msg2" style="display: none;">
+            </div>
+
+
+            <div id="contSensores" class="service-grids" style="min-height: 42%">
+                {#                <div class="service-grid1">#}
+                {#                    <div class="col-md-6 service-grid">#}
+                {#                        <h4>Sensor 1</h4>#}
+                {##}
+                {#                        <div id="grafico1"></div>#}
+                {#                    </div>#}
+                {#                    <div class="col-md-6 service-grid">#}
+                {#                        <h4>Sensor 2</h4>#}
+                {##}
+                {#                        <div id="grafico2"></div>#}
+                {#                    </div>#}
+                {#                </div>#}
+                {#                <div class="clearfix"></div>#}
+            </div>
         </div>
         <div class="clearfix"></div>
     </div>

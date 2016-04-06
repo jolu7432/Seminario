@@ -36,8 +36,8 @@ body {
 }
 
 .header {
-    background: #000000;
-    border-bottom: 7px solid #F26E0F
+    background: forestgreen;
+    border-bottom: 7px solid yellow;
 }
 
 .header-top {
@@ -49,7 +49,7 @@ body {
 }
 
 .logo a {
-    font-size: 3em;
+    font-size: 4em;
     text-decoration: none;
     text-transform: uppercase;
     font-weight: 600;
@@ -65,7 +65,7 @@ body {
 }
 
 .top-menu {
-    width: 90%;
+    width: 92%;
     margin-left: auto;
 }
 
@@ -469,7 +469,7 @@ a.button:hover {
     text-transform: uppercase;
     color: #fff;
     font-weight: 700;
-    background: #10DDE5;
+    background: forestgreen;
     padding: 0.8em 0;
 }
 
@@ -717,7 +717,7 @@ a.button2:hover {
 
 .contactgrid2 input[type="button"] {
     color: #fff;
-    background: #FFD204;
+    background: forestgreen;
     border: none;
     font-size: 1.3em;
     outline: none;
@@ -738,7 +738,7 @@ a.button2:hover {
 .footer-section {
     padding: 1em 0;
     text-align: center;
-    background: rgb(29, 29, 29);
+    background: forestgreen;
 }
 
 .social-icons i {
@@ -892,7 +892,7 @@ a.button2:hover {
 .contact h3 {
     font-size: 3em;
     text-transform: capitalize;
-    color: #99bf38;
+    color: white;
     text-transform: uppercase;
     font-weight: 700;
     text-align: center;
@@ -1033,7 +1033,7 @@ a.button2:hover {
 }
 
 .company_address a {
-    color: #FFD204;
+    color: darkblue;
 }
 
 .contact-form span label {
@@ -1319,7 +1319,7 @@ a.button2:hover {
 
 @media (max-width: 768px) {
     .logo a {
-        font-size: 2.3em;
+        font-size: 4em;
     }
 
     .logo p {
@@ -2422,3 +2422,4 @@ a.button2:hover {
     .contact-form span label {
         font-size: 12px;
     }
+}

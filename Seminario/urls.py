@@ -19,7 +19,7 @@ from django.views.debug import default_urlconf
 from django.views.generic import RedirectView
 
 urlpatterns = [
-    url(r'^admin', include(admin.site.urls)),    
+    url(r'^admin', include(admin.site.urls)),
     url(r'^$', 'Ambience.views.index', name='index'),
     url(r'^principal$', 'Ambience.views.principal', name='principal'),
     url(r'^logIn$', 'Ambience.views.login_user', name='logIn'),
@@ -29,7 +29,8 @@ urlpatterns = [
     url(r'^abm$', 'Ambience.views.abm', name='abm'),
     url(r'^sendEmail$', 'Ambience.views.sendEmail', name='sendEmail'),
     url(r'^server', 'Ambience.views.server', name='server'),
-    url(r'^email', 'Ambience.views.email', name='email'),
     url(r'^traerSilo', 'Ambience.views.traerSilo', name='traerSilo'),
     url(r'^graficarDash', 'Ambience.views.graficarDash', name='graficarDash'),
+    url(r'^borrarUsuario', 'Ambience.views.borrarUsuario', name='borrarUsuario'),
+    url(r'^traerSensores', 'Ambience.views.traerSensores', name='traerSensores'),
 ]

@@ -100,7 +100,7 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
         #contenido {
             float: right;
             width: 100%;
-            background-color: #2F4F4F;
+            background-color: white;
         }
 
         #pie {
@@ -108,19 +108,23 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
         }
 
         #msg {
-            color: red;
-            border-bottom: 1px solid #48484B;
-        {#            margin-top: 10%;#}{#            margin-left: 10%;#}
+            color: forestgreen;
+            font-size: medium;
+        {#            border-bottom: 1px solid #48484B;#}{#            margin-top: 10%;#}{#            margin-left: 10%;#}
 
         }
 
+        #msg2{
+            color: red;
+        }
+
         .cont {
-            background-color: black;
+            background-color: white;
         }
 
         .contactgrid2 input[type="submit"] {
             color: #fff;
-            background: #FFD204;
+            background: forestgreen;
             border: none;
             font-size: 1.3em;
             outline: none;
@@ -135,7 +139,6 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
             border: none;
             font-size: 15px;
             color: #fff;
-            text-transform: capitalize;
             padding: 15px 10px;
             background: rgba(92, 131, 13, 1);
         }
@@ -157,11 +160,20 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
                 <div class='top-menu'>
                     <label class="menu"> </label>
                     <ul>
-                        <li><a id="index" href='principal'><span>Time Real</span></a></li>
-                        <li><a id="statistics" href='statistics'><span>Statistics</span></a></li>
-                        <li><a id="contact" href='contact'><span>Contact</span></a></li>
-                        <li><a id="abm" href='abm'><span>Abm</span></a></li>
-                        <li><a id="logout" href='logOut'><span style="background-color: red;">Logout</span></a>
+                        <li><a id="index" href='principal'><span>Metricas</span></a></li>
+                        {% if not user.es_operario %}
+                            <li><a id="statistics" href='statistics'><span>Estadisticas</span></a></li>
+                        {% else %}
+                            <li><a id="statistics" href=''><span
+                                    style="background-color: silver">Estadisticas</span></a></li>
+                        {% endif %}
+                        <li><a id="contact" href='contact'><span>Contacto</span></a></li>
+                        {% if not user.es_operario %}
+                            <li><a id="abm" href='abm'><span>Abm</span></a></li>
+                        {% else %}
+                            <li><a id="abm" href=''><span style="background-color: silver">Abm</span></a></li>
+                        {% endif %}
+                        <li><a id="logout" href='logOut'><span>Logout</span></a>
                         </li>
                         <div class="clearfix"></div>
                     </ul>
@@ -182,11 +194,11 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
                         <div class="social-icons">
                             <a href="#"><i class="icon1"></i></a>
                             <a href="#"><i class="icon2"></i></a>
-                            <a href="#"><i class="icon3"></i></a>
+                            <a href="mailto:ambiancesa@gmail.com"><i class="icon3"></i></a>
                         </div>
                     </div>
                     <div class="footer-bottom">
-                        <p> Copyright 2015 Made Software . All rights Reserved | Design by<a href="#"
+                        <p> Copyright 2015 Made Software . All rights Reserved | Design by<a href=""
                                                                                              target="target_blank">Hernan
                             Gigliotti & Jorge Tanos</a>
                         </p>
