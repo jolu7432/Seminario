@@ -81,6 +81,10 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
             });
             //script for menu
         });
+
+        function permisoDenegado(){
+           alert("No tienes permiso de ingresar a este módulo.");
+        }
     </script>
     <style>
         #contenedor {
@@ -161,19 +165,19 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
                     <label class="menu"> </label>
                     <ul>
                         <li><a id="index" href='principal'><span>Metricas</span></a></li>
-                        {% if not user.es_operario %}
+                        {% if user.is_staff %}
                             <li><a id="statistics" href='statistics'><span>Estadisticas</span></a></li>
-                        {% else %}
-                            <li><a id="statistics" href=''><span
+                        {% else %}                            
+                            <li><a id="statistics" href='' onclick="permisoDenegado()"><span
                                     style="background-color: silver">Estadisticas</span></a></li>
                         {% endif %}
                         <li><a id="contact" href='contact'><span>Contacto</span></a></li>
-                        {% if not user.es_operario %}
+                        {% if user.is_staff %}
                             <li><a id="abm" href='abm'><span>Abm</span></a></li>
                         {% else %}
-                            <li><a id="abm" href=''><span style="background-color: silver">Abm</span></a></li>
+                            <li><a id="abm" href=''  onclick="permisoDenegado()"><span style="background-color: silver">Abm</span></a></li>
                         {% endif %}
-                        <li><a id="logout" href='logOut'><span>Logout</span></a>
+                        <li><a id="logout" href='logOut'><span>Logout <font color="red" size="5">{{ user.username }}</font></span></a>                        
                         </li>
                         <div class="clearfix"></div>
                     </ul>

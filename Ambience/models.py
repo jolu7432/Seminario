@@ -28,7 +28,7 @@ class Sensor(models.Model):
     silo = models.ForeignKey(Silo)
 
     def __str__(self):
-        return self.nombre
+        return  "IP-" + str(self.silo) + " _ " + self.nombre 
 
 
 class Alerta(models.Model):
@@ -43,6 +43,14 @@ class Puesto(models.Model):
     user = models.ForeignKey(User)
     silo = models.ForeignKey(Silo)
 
+class UserProfile(models.Model):
+    user = models.OneToOneField(User)   
+    empresa = models.ForeignKey(Empresa, default=1)   
 
-User.add_to_class('empresa', models.ForeignKey(Empresa, default=1))
-User.add_to_class('es_operario', models.BooleanField(default=False))
+    def __unicode__(self):
+        return self.user.username
+
+
+
+#User.add_to_class('empresa', models.ForeignKey(Empresa, default=1))
+#User.add_to_class('es_operario', models.BooleanField(default=False))

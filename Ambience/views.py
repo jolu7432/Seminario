@@ -14,7 +14,7 @@ from django.utils.datetime_safe import datetime
 from django.views.decorators.csrf import csrf_exempt
 from Ambience.models import Sensor, Silo, Puesto, Alerta
 from ipware.ip import get_ip
-
+import pdb
 
 @csrf_exempt
 def index(request):
@@ -25,15 +25,15 @@ def index(request):
 @csrf_exempt
 def principal(request):
     silos = []
-    if request.user.es_operario:
-        puestos = Puesto.objects.filter(user=request.user)
-        for p in puestos:
-            silos.append(p.silo)
+    if request.user.is_superuser:
+        silos = Silo.objects.all()
     else:
         if request.user.is_staff:
-            silos = Silo.objects.all()
-        else:
-            silos = Silo.objects.filter(empresa=request.user.empresa)
+            silos = Silo.objects.filter(empresa=request.user.userprofile.empresa)           
+        else:   
+            puestos = Puesto.objects.filter(user=request.user)
+            for p in puestos:
+                silos.append(p.silo)   
     return render_to_response('principal.html', {'silos': silos},
                               context_instance=RequestContext(request))
 
@@ -41,16 +41,16 @@ def principal(request):
 @login_required(login_url="index")
 @csrf_exempt
 def statistics(request):
-    if not request.user.es_operario:
-        if request.user.is_staff:
-            silos = Silo.objects.all()
-        else:
-            silos = Silo.objects.filter(empresa=request.user.empresa)
-        return render_to_response('statistics.html', {'silos': silos},
-                                  context_instance=RequestContext(request))
+    if request.user.is_superuser:
+        silos = Silo.objects.all()
     else:
-        msg = "No tienes Permiso."
-        return render_to_response('error.html', {'error': msg}, context_instance=RequestContext(request))
+        if request.user.is_staff:           
+            silos = Silo.objects.filter(empresa=request.user.userprofile.empresa)           
+        else:
+            msg = "No tienes Permiso."
+            return render_to_response('error.html', {'error': msg}, context_instance=RequestContext(request))
+    return render_to_response('statistics.html', {'silos': silos},
+                                      context_instance=RequestContext(request))
 
 
 @login_required(login_url="index")
@@ -61,55 +61,64 @@ def contact(request):
 
 @login_required(login_url="index")
 @csrf_exempt
-def abm(request):
-    if not request.user.es_operario:
-        if request.user.is_staff:
-            usuarios = User.objects.all()
-            silos = Silo.objects.all()
-        else:
-            usuarios = User.objects.exclude(is_staff=True).filter(empresa=request.user.empresa)
-            silos = Silo.objects.filter(empresa=request.user.empresa)
-        if request.method == 'POST':
-            if request.POST['usuarioHidden'] == "":
-                user = User.objects.create_user(username=request.POST['usuario'], password=request.POST['password'],
-                                                email=request.POST['email'], first_name=request.POST['nombre'],
-                                                last_name=request.POST['apellido'],
-                                                es_operario=True, empresa=request.user.empresa)
-            else:
-                idUser = request.POST['usuarioHidden']
-                user = User.objects.get(id=idUser)
-                user.username = request.POST['usuario']
-                user.first_name = request.POST['nombre']
-                user.email = request.POST['email']
-                user.last_name = request.POST['apellido']
-                if request.POST['password'] != "":
-                    user.set_password(request.POST['password'])
-            user.save()
-            silos = request.POST.getlist('silo')
-            puestosAsignados = list(Puesto.objects.filter(user=user))
+def abm(request):	   
+	if request.user.is_superuser or request.user.is_staff:
+		pdb.set_trace()
+		if request.method == 'POST':			  
+			if request.POST['usuarioHidden'] == "":
+				user = User.objects.create_user(username=request.POST['usuario'], password=request.POST['password'],
+				    email=request.POST['email'], first_name=request.POST['nombre'],
+				    last_name=request.POST['apellido'],is_staff=False)
+				userProfile = UserProfile()
+				userProfile.user = user
+				userProfile.empresa = request.user.userprofile.empresa                
+				userProfile.save()
+			else:
+				idUser = request.POST['usuarioHidden']
+				user = User.objects.get(id=idUser)
+				user.username = request.POST['usuario']
+				user.first_name = request.POST['nombre']
+				user.email = request.POST['email']
+				user.last_name = request.POST['apellido']
+			if request.POST['password'] != "":
+				user.set_password(request.POST['password'])
 
-            for s in silos:
-                sil = Silo.objects.get(id=s)
-                if not existe_silo(request, sil, puestosAsignados):
-                    pues = Puesto()
-                    pues.user = user
-                    pues.silo = sil
-                    pues.save()
-                else:
-                    eliminar_por_silo(request, sil, puestosAsignados)
-            if puestosAsignados.__len__() > 0:
-                for p in puestosAsignados:
-                    Puesto.objects.get(id=p.id).delete()
-        return render_to_response('abm.html', {'usuarios': usuarios, 'puestos': Puesto.objects.all(),
-                                               'silos': silos},
-                                  context_instance=RequestContext(request))
-    else:
-        msg = "No tienes Permiso."
-        return render_to_response('error.html', {'error': msg}, context_instance=RequestContext(request))
+			user.save()
+			silosAdd = request.POST.getlist('silo')
+			puestosAsignados = list(Puesto.objects.filter(user=user))
+
+			for s in silosAdd:
+				sil = Silo.objects.get(id=s)
+				if not existe_silo(request, sil, puestosAsignados):
+					pues = Puesto()
+					pues.user = user
+					pues.silo = sil
+					pues.save()
+				else:
+					eliminar_por_silo(request, sil, puestosAsignados)
+
+			if puestosAsignados.__len__() > 0:
+				for p in puestosAsignados:
+					Puesto.objects.get(id=p.id).delete() 
+
+			return HttpResponseRedirect('abm')
+
+		if request.user.is_superuser:
+			usuarios = User.objects.all()
+			silos = Silo.objects.all()
+		else:
+		    usuarios = User.objects.exclude(is_superuser=True).filter(userprofile__empresa=request.user.userprofile.empresa)
+		    silos = Silo.objects.filter(empresa=request.user.userprofile.empresa)     
+		return render_to_response('abm.html', {'usuarios': usuarios, 'puestos': Puesto.objects.all(),
+		                                       'silos': silos},
+		                          context_instance=RequestContext(request))
+	else:
+		msg = "No tienes Permiso."
+		return render_to_response('error.html', {'error': msg}, context_instance=RequestContext(request))
 
 
 def eliminar_por_silo(request, dat, datos):
-    for b in datos[:]:
+    for b in datos:
         if b.silo == dat:
             datos.remove(b)
 
@@ -142,7 +151,7 @@ def login_user(request):
         if user is not None:
             if user.is_active:
                 login(request, user)
-                if user.is_staff:
+                if user.is_superuser:
                     return HttpResponseRedirect('admin')
                 return HttpResponseRedirect(reverse('principal'))
             else:
@@ -225,12 +234,12 @@ def server(request):
 def traerSilo(request):
     usuario = User.objects.get(id=request.POST['idUser'])
     silos = []
-    if usuario.es_operario:
+    if not usuario.is_staff:
         puestos = Puesto.objects.filter(user=usuario)
         for p in puestos:
             silos.append(p.silo)
     else:
-        silos = Silo.objects.filter(empresa=usuario.empresa)
+        silos = Silo.objects.filter(empresa=usuario.userprofile.empresa)
     data = serializers.serialize('json', silos)
     return HttpResponse(data)
 

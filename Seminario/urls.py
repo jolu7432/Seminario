@@ -25,7 +25,7 @@ urlpatterns = [
     url(r'^logIn$', 'Ambience.views.login_user', name='logIn'),
     url(r'^logOut$', 'Ambience.views.logout_user', name='logOut'),
     url(r'^statistics$', 'Ambience.views.statistics', name='statistics'),
-    url(r'^contact$', 'Ambience.views.contact', name='contact'),
+    url(r'^contact$', 'Ambience.views.contact', name='contact'),   
     url(r'^abm$', 'Ambience.views.abm', name='abm'),
     url(r'^sendEmail$', 'Ambience.views.sendEmail', name='sendEmail'),
     url(r'^server', 'Ambience.views.server', name='server'),
@@ -33,4 +33,5 @@ urlpatterns = [
     url(r'^graficarDash', 'Ambience.views.graficarDash', name='graficarDash'),
     url(r'^borrarUsuario', 'Ambience.views.borrarUsuario', name='borrarUsuario'),
     url(r'^traerSensores', 'Ambience.views.traerSensores', name='traerSensores'),
+
 ]

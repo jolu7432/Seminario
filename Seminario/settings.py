@@ -117,3 +117,6 @@ EMAIL_HOST_PASSWORD = 'ambience1234'
 
 EMAIL_PORT = 587
 
+#Agregado pra usuar el user Profile
+AUTH_PROFILE_MODULE='Ambience.UserProfile'
+

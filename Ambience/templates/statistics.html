@@ -376,7 +376,8 @@
         }
 
         .panelgrafico {
-        {#            height: 110%;#} overflow: hidden;
+            /*height: 110%;*/
+            overflow: hidden;
             display: none;
         }
 
@@ -422,7 +423,7 @@
                                 <!--Agregar los Silos dependiendo del Usuario y la Empresa-->
                                 <option Value="">Seleccionar Silo...</option>
                                 {% for s in silos %}
-                                    {% if user.is_staff %}
+                                    {% if user.is_superuser %}
                                         <option name="itemSilo"
                                                 value="{{ s.ip_asignada }}">{{ s.ip_asignada }} "{{ s.empresa }}"
                                         </option>

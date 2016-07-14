@@ -313,7 +313,7 @@
                     <select id="dropSilos" class="form-control"> <!--Agregar los Silos dependiendo del Usuario-->
                         <option value="">Seleccionar Silo...</option>
                         {% for s in silos %}
-                            {% if user.is_staff %}
+                            {% if user.is_superuser %}
                                 <option name="itemSilo"
                                         value="{{ s.id }}">{{ s.ip_asignada }} "{{ s.empresa }}"
                                 </option>
@@ -334,19 +334,7 @@
 
 
             <div id="contSensores" class="service-grids" style="min-height: 42%">
-                {#                <div class="service-grid1">#}
-                {#                    <div class="col-md-6 service-grid">#}
-                {#                        <h4>Sensor 1</h4>#}
-                {##}
-                {#                        <div id="grafico1"></div>#}
-                {#                    </div>#}
-                {#                    <div class="col-md-6 service-grid">#}
-                {#                        <h4>Sensor 2</h4>#}
-                {##}
-                {#                        <div id="grafico2"></div>#}
-                {#                    </div>#}
-                {#                </div>#}
-                {#                <div class="clearfix"></div>#}
+               
             </div>
         </div>
         <div class="clearfix"></div>

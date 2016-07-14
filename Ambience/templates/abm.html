@@ -7,7 +7,10 @@
             //script for menu
 
             $('#guardar').click(function () {
-                window.setTimeout('location.reload()', 200);
+               
+                    //$.post('abm', {idUser: this.id}, function (response) {});
+                    window.setTimeout('location.reload()', 200);
+                            
             });
 
             {% for us in usuarios %}
@@ -17,7 +20,7 @@
                 $('<td>').text('{{us.last_name}}').appendTo(tr);
                 $('<td>').text('{{us.email}}').appendTo(tr);
                 //$('<td>').text('{us.direccion}}').appendTo(tr);
-                $('<td>').text('{{us.empresa}}').appendTo(tr);
+                $('<td>').text('{{us.userprofile.empresa}}').appendTo(tr);
                 var silos = $('<td>').appendTo(tr);
                 var combo = $('<select>').appendTo(silos);
                 {% for p in puestos %}
@@ -25,11 +28,23 @@
                         $('<option name="{{ p.user }}" value={{ p.silo.id }}>').text('{{ p.silo.ip_asignada }}').appendTo(combo);
                     {% endif %}
                 {% endfor %}
-                $('<td>').text('{{us.es_operario}}').appendTo(tr);
+                ope="Sin asignar";
+                {% if us.is_superuser %}
+                    ope = 'Super Usuario';
+                {% else %}   
+                    {% if us.is_staff %}                
+                        ope = 'Administrador'; 
+                    {% else %} 
+                        ope = 'Operario';  
+                    {% endif %} 
+                {% endif %}
+                $('<td>').text(ope).appendTo(tr);
                 var accion = $('<td>').appendTo(tr);
-                $('<button id="{{ us.id }}" title="Editar" class="editar"><img src="static/images/editar.png" alt="Editar">').appendTo(accion);
-                {% if user.id != us.id %}
-                    $('<button id="{{ us.id }}" title="Borrar" class="borrar"><img src="static/images/remove.png" alt="Borrar">').appendTo(accion);
+                {% if us.is_superuser != True %}                    
+                    $('<button id="{{ us.id }}" title="Editar" class="editar"><img src="static/images/editar.png" alt="Editar">').appendTo(accion);
+                    {% if user.id != us.id %}
+                        $('<button id="{{ us.id }}" title="Borrar" class="borrar"><img src="static/images/remove.png" alt="Borrar">').appendTo(accion);
+                    {% endif %}
                 {% endif %}
             {% endfor %}
 
@@ -41,22 +56,22 @@
                 });
                 {% for us in usuarios %}
                     if ({{ us.id }} == this.id) {
-                    $('#id_usuario').val('{{ us.username }}');
-                    $('#id_password').val();
-                    $('#id_email').val('{{ us.email }}');
-                    $('#id_nombre').val('{{ us.first_name }}');
-                    $('#id_apellido').val('{{ us.last_name }}');
-                    //$('#id_direccion').val();
-                    {% for p in puestos %}
-                        {% if p.user == us %}
-                            $('[name=itemSilo]').each(function (k, y) {
-                                if ('{{ p.silo.ip_asignada}}' == y.text) {
-                                    $(this).prop('selected', true);
-                                }
-                            });
-                        {% endif %}
-                    {% endfor %}
-                }
+                        $('#id_usuario').val('{{ us.username }}');
+                        $('#id_password').val();
+                        $('#id_email').val('{{ us.email }}');
+                        $('#id_nombre').val('{{ us.first_name }}');
+                        $('#id_apellido').val('{{ us.last_name }}');
+                        //$('#id_direccion').val();
+                        {% for p in puestos %}
+                            {% if p.user == us %}
+                                $('[name=itemSilo]').each(function (k, y) {                               
+                                    if ('{{ p.silo.id}}' == y.value) {
+                                        $(this).prop('selected', true);
+                                    }
+                                });
+                            {% endif %}
+                        {% endfor %}
+                    }
                 {% endfor %}
             });
             $('#example').on('click', '.borrar', function () {
@@ -66,7 +81,7 @@
                     });
                     window.setTimeout('location.reload()', 50);
                 }
-            });
+            });            
         });
     </script>
     <style>
@@ -94,8 +109,28 @@
             <h3>Altas</h3>
 
             <div class="cont">
-                <form action="" method="post">
-                    {% csrf_token %}
+
+                 <form action="" method="post">
+                    {% csrf_token %} 
+                            <label class="required" for="id_usuario">Usuario:</label>
+                            <input class="vTextField form-control" id="id_usuario" placeholder="Usuario" maxlength="50"
+                                   name="usuario"
+                                   type="text"
+                                   required>
+                            <label for="id_password">Password</label>
+                           
+                    <input id="id_usuarioHidden" name="usuarioHidden" type="hidden" value="">
+                        <input id="guardar" type="submit" name="guardar" value="Guardar" class="navbar-btn btn-primary form-control"
+                               >
+                </form>
+
+
+
+
+
+
+               <!--  <form action="" method="POST">
+                    {% csrf_token %}                  
                     <div id="rcorners" class="container col-md-4 col-md-offset-4">
                         <div class="form-group">
                             <label class="required" for="id_usuario">Usuario:</label>
@@ -110,9 +145,7 @@
                             <label class="required" for="id_email">Email:</label>
                             <input class="vTextField form-control" id="id_email" placeholder="Email" maxlength="50"
                                    name="email"
-                                   type="email" required>
-                            {#                            <label class="required" for="id_operario">Es Operario:</label>#}
-                            {#                            <input class="vTextField" id="id_operario" name="operario" type="checkbox">#}
+                                   type="email" required>                           
                         </div>
                         <div class="form-group">
                             <label class="required" for="id_nombre">Nombre:</label>
@@ -124,15 +157,11 @@
                             <input class="vTextField form-control" id="id_apellido" placeholder="Apellido"
                                    maxlength="50"
                                    name="apellido"
-                                   type="text" required>
-                            {#                            <label class="required" for="id_direccion">Direccion:</label>#}
-                            {#                            <input class="vTextField" id="id_direccion" placeholder="Direccion" maxlength="50"#}
-                            {#                                   name="direccion" type="text"#}
-                            {#                                   required>#}
+                                   type="text" required>                    
                             <label for="id_silo">Silos:</label>
-                            <select id="id_silo" name="silo" required size="3" multiple class="form-control">
+                            <select id="id_silo" name="silo" size="3" multiple class="form-control">
                                 {% for s in silos %}
-                                    {% if user.is_staff %}
+                                    {% if user.is_superuser %}
                                         <option name="itemSilo"
                                                 value="{{ s.id }}">{{ s.ip_asignada }} "{{ s.empresa }}"</option>
                                     {% else %}
@@ -147,8 +176,8 @@
                     <div class="contactgrid2 col-md-4 col-md-offset-4">
                         <input id="guardar" type="submit" value="Guardar" class="navbar-btn btn-primary form-control"
                                name="save">
-                    </div>
-                </form>
+                    </div>               
+                </form> -->
             </div>
         </div>
         <div class="container">
