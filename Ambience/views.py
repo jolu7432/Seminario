@@ -6,7 +6,7 @@ from django.core import serializers
 from django.core.mail import EmailMessage
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, HttpResponse
-from django.shortcuts import render_to_response, render
+from django.shortcuts import render
 
 # Create your views here.
 from django.template import RequestContext
@@ -18,7 +18,7 @@ import pdb
 
 @csrf_exempt
 def index(request):
-    return render_to_response('index.html', context_instance=RequestContext(request))
+    return render(request, 'index.html')
 
 
 @login_required(login_url="index")
@@ -34,8 +34,7 @@ def principal(request):
             puestos = Puesto.objects.filter(user=request.user)
             for p in puestos:
                 silos.append(p.silo)   
-    return render_to_response('principal.html', {'silos': silos},
-                              context_instance=RequestContext(request))
+    return render(request, 'principal.html', {'silos': silos})
 
 
 @login_required(login_url="index")
@@ -48,22 +47,21 @@ def statistics(request):
             silos = Silo.objects.filter(empresa=request.user.userprofile.empresa)           
         else:
             msg = "No tienes Permiso."
-            return render_to_response('error.html', {'error': msg}, context_instance=RequestContext(request))
-    return render_to_response('statistics.html', {'silos': silos},
-                                      context_instance=RequestContext(request))
+            return render(request, 'error.html', {'error': msg})
+    return render(request, 'statistics.html', {'silos': silos})
 
 
 @login_required(login_url="index")
 @csrf_exempt
 def contact(request):
-    return render_to_response('contact.html', context_instance=RequestContext(request))
+    return render(request, 'contact.html')
 
 
 @login_required(login_url="index")
 @csrf_exempt
 def abm(request):	   
 	if request.user.is_superuser or request.user.is_staff:
-		pdb.set_trace()
+		#pdb.set_trace()
 		if request.method == 'POST':			  
 			if request.POST['usuarioHidden'] == "":
 				user = User.objects.create_user(username=request.POST['usuario'], password=request.POST['password'],
@@ -109,12 +107,11 @@ def abm(request):
 		else:
 		    usuarios = User.objects.exclude(is_superuser=True).filter(userprofile__empresa=request.user.userprofile.empresa)
 		    silos = Silo.objects.filter(empresa=request.user.userprofile.empresa)     
-		return render_to_response('abm.html', {'usuarios': usuarios, 'puestos': Puesto.objects.all(),
-		                                       'silos': silos},
-		                          context_instance=RequestContext(request))
+		return render(request, 'abm.html', {'usuarios': usuarios, 'puestos': Puesto.objects.all(),
+		                                       'silos': silos})
 	else:
 		msg = "No tienes Permiso."
-		return render_to_response('error.html', {'error': msg}, context_instance=RequestContext(request))
+		return render(request, 'error.html', {'error': msg})
 
 
 def eliminar_por_silo(request, dat, datos):
@@ -133,12 +130,12 @@ def existe_silo(request, dat, datos):
 
 @csrf_exempt
 def facebook(request):
-    return render_to_response('https://www.facebook.com.ar', context_instance=RequestContext(request))
+    return render(request, 'https://www.facebook.com.ar')
 
 
 @csrf_exempt
 def twiter(request):
-    return render_to_response('https://www.twiter.com', context_instance=RequestContext(request))
+    return render(request, 'https://www.twiter.com')
 
 
 @csrf_exempt
@@ -156,18 +153,18 @@ def login_user(request):
                 return HttpResponseRedirect(reverse('principal'))
             else:
                 error = 'Cuenta desactivada. Pongase en contacto con el administrador del sitio.'
-                return render_to_response('index.html', {'error': error})
+                return render(request, 'index.html', {'error': error})
         else:
             error = 'Usuario y/o clave incorrecta'
-            return render_to_response('index.html', {'error': error})
+            return render(request, 'index.html', {'error': error})
     else:
-        return render_to_response('index.html', {'error': error})
+        return render(request, 'index.html', {'error': error})
 
 
 @csrf_exempt
 def logout_user(request):
     logout(request)
-    return render_to_response('index.html')
+    return render(request, 'index.html')
 
 
 @csrf_exempt
@@ -180,10 +177,9 @@ def sendEmail(request):
                                  'telefono'],
                              to=['ambiancesa@gmail.com'])
         email.send()
-        return render_to_response('contact.html', {'msg': "Envio correcto"}, context_instance=RequestContext(request))
+        return render(request, 'contact.html', {'msg': "Envio correcto"})
     except:
-        return render_to_response('error.html', {'error': "Error en la conexion con el servidor."},
-                                  context_instance=RequestContext(request))
+        return render(request, 'error.html', {'error': "Error en la conexion con el servidor."})
 
 
 def server(request):
@@ -227,7 +223,7 @@ def server(request):
             msg = "Ip no alojada en la base de datos."
     else:
         msg = "Token incorrecto."
-    return render_to_response('errorArduino.html', {'error': msg}, context_instance=RequestContext(request))
+    return render(request,'errorArduino.html', {'error': msg})
 
 
 @csrf_exempt

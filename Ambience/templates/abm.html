@@ -6,12 +6,12 @@
             $('#abm').attr('class', 'active');
             //script for menu
 
-            $('#guardar').click(function () {
+            //$('#guardar').click(function () {
                
                     //$.post('abm', {idUser: this.id}, function (response) {});
-                    window.setTimeout('location.reload()', 200);
+                    //window.setTimeout('location.reload()', 200);
                             
-            });
+            //});
 
             {% for us in usuarios %}
                 var tr = $('<tr>').appendTo($('#tbody'));
@@ -109,27 +109,7 @@
             <h3>Altas</h3>
 
             <div class="cont">
-
-                 <form action="" method="post">
-                    {% csrf_token %} 
-                            <label class="required" for="id_usuario">Usuario:</label>
-                            <input class="vTextField form-control" id="id_usuario" placeholder="Usuario" maxlength="50"
-                                   name="usuario"
-                                   type="text"
-                                   required>
-                            <label for="id_password">Password</label>
-                           
-                    <input id="id_usuarioHidden" name="usuarioHidden" type="hidden" value="">
-                        <input id="guardar" type="submit" name="guardar" value="Guardar" class="navbar-btn btn-primary form-control"
-                               >
-                </form>
-
-
-
-
-
-
-               <!--  <form action="" method="POST">
+                <form action="" method="POST">
                     {% csrf_token %}                  
                     <div id="rcorners" class="container col-md-4 col-md-offset-4">
                         <div class="form-group">
@@ -177,7 +157,7 @@
                         <input id="guardar" type="submit" value="Guardar" class="navbar-btn btn-primary form-control"
                                name="save">
                     </div>               
-                </form> -->
+                </form>
             </div>
         </div>
         <div class="container">

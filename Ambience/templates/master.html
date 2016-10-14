@@ -146,6 +146,9 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
             padding: 15px 10px;
             background: rgba(92, 131, 13, 1);
         }
+        .fontUpper{
+            text-transform: uppercase;
+        }
     </style>
 
     {% block Head %}
@@ -177,7 +180,7 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
                         {% else %}
                             <li><a id="abm" href=''  onclick="permisoDenegado()"><span style="background-color: silver">Abm</span></a></li>
                         {% endif %}
-                        <li><a id="logout" href='logOut'><span>Logout <font color="red" size="5">{{ user.username }}</font></span></a>                        
+                        <li><a id="logout" href='logOut'><span>Logout <font  class="fontUpper" color="green" size="4">{{ user.username }}</font></span></a>                        
                         </li>
                         <div class="clearfix"></div>
                     </ul>
